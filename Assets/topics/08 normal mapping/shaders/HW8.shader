@@ -11,15 +11,12 @@
         _displacementIntensity ("displacement intensity", Range(0,1)) = 0.5
         _refractionIntensity ("refraction intensity", Range(0, 0.5)) = 0.12
 
-        // legacy note; alpha now driven by Fresnel + foam
         _opacity ("opacity (legacy - not used for alpha)", Range(0,1)) = 0.9
-
-        // Base look controls
         _tint ("tint", Color) = (0.65, 0.9, 1.0, 1)
         _surfaceAlpha ("surface alpha", Range(0,1)) = 0.6
         _fresnelPower ("fresnel power", Range(0.5, 8)) = 3.0
 
-        // Foam (from normal tilt) + ribbons
+        // Foam + ribbons (kept)
         _foamStrength ("foam strength (from normal tilt)", Range(0,2)) = 0.8
         _foamColor ("foam color", Color) = (1,1,1,1)
         _RibbonFreq ("foam ribbon freq", Range(0.0, 10.0)) = 2.2
@@ -28,12 +25,12 @@
         _RibbonSharp ("foam ribbon sharpness", Range(0.5, 6.0)) = 2.5
         _RibbonDirXZ ("foam ribbon dir (xz)", Vector) = (1,0,0,0)
 
-        // Vortex (screen-space swirl on refraction)
+        // Screen-space refraction swirl (unchanged; optional)
         _SwirlCenterUV ("vortex center (screen uv)", Vector) = (0.5, 0.5, 0, 0)
         _SwirlStrength ("vortex strength", Range(-4.0, 4.0)) = 1.2
         _SwirlFalloff ("vortex falloff", Range(0.0, 8.0)) = 3.0
 
-        // Wind + Wave bands
+        // Wind + Bands (kept)
         _WindDirXZ ("wind dir (xz)", Vector) = (1,0,0,0)
         _WindFreq ("wind freq", Range(0.0, 20.0)) = 6.0
         _WindSpeed ("wind speed", Range(0.0, 8.0)) = 2.0
@@ -43,18 +40,23 @@
         _BandFreq ("band freq", Range(0.0, 12.0)) = 3.0
         _BandSpeed ("band speed", Range(0.0, 6.0)) = 0.8
         _BandAmount ("band normal multiplier", Range(0.0, 1.0)) = 0.35
+
+        // === Vortex disk (everything only inside this UV circle) ===
+        _CircleCenterUV ("Vortex Center (UV)", Vector) = (0.5, 0.5, 0, 0)
+        _CircleRadiusUV ("Vortex Radius (UV)", Range(0,1)) = 0.45
+        _CircleSpinStrength ("UV spin strength", Range(0,4)) = 1.1
+        _CircleAngularSpeed ("UV spin speed (rad/s)", Range(-16,16)) = 2.2
+        _CircleFalloffPow ("Inner falloff power", Range(0.5,6)) = 2.0
+        _CircleBlendFeather ("Edge feather (UV)", Range(0.0,0.2)) = 0.04
+
+        // Cone depth (vertex-only)
+        _ConeDepth ("Cone depth (down along normal)", Range(0,1)) = 0.35
+        _ConeFalloffPow ("Cone falloff power", Range(0.5,6)) = 2.2
     }
 
     SubShader 
     {
-        Tags 
-        { 
-            "RenderPipeline" = "UniversalPipeline"
-            "Queue" = "Transparent"
-            "IgnoreProjector" = "True"
-        }
-
-        // transparency plumbing
+        Tags { "RenderPipeline"="UniversalPipeline" "Queue"="Transparent" "IgnoreProjector"="True" }
         ZWrite Off
         Blend SrcAlpha OneMinusSrcAlpha
 
@@ -73,7 +75,7 @@
             float _normalIntensity;
             float _displacementIntensity;
             float _refractionIntensity;
-            float _opacity; // legacy
+            float _opacity;
 
             float4 _tint;
             float _surfaceAlpha;
@@ -102,20 +104,23 @@
             float _BandSpeed;
             float _BandAmount;
 
+            float4 _CircleCenterUV;
+            float _CircleRadiusUV;
+            float _CircleSpinStrength;
+            float _CircleAngularSpeed;
+            float _CircleFalloffPow;
+            float _CircleBlendFeather;
+
+            float _ConeDepth;
+            float _ConeFalloffPow;
+
             float4 _albedo_ST;
             CBUFFER_END
 
-            TEXTURE2D(_albedo);
-            SAMPLER(sampler_albedo);
-
-            TEXTURE2D(_normalMap);
-            SAMPLER(sampler_normalMap);
-
-            TEXTURE2D(_displacementMap);
-            SAMPLER(sampler_displacementMap);
-
-            TEXTURE2D(_CameraOpaqueTexture);
-            SAMPLER(sampler_CameraOpaqueTexture);
+            TEXTURE2D(_albedo);          SAMPLER(sampler_albedo);
+            TEXTURE2D(_normalMap);       SAMPLER(sampler_normalMap);
+            TEXTURE2D(_displacementMap); SAMPLER(sampler_displacementMap);
+            TEXTURE2D(_CameraOpaqueTexture); SAMPLER(sampler_CameraOpaqueTexture);
 
             struct MeshData 
             {
@@ -128,32 +133,67 @@
             struct Interpolators 
             {
                 float4 vertex : SV_POSITION;
-                float2 uv : TEXCOORD0;
-                float3 normal : TEXCOORD1;
-                float3 tangent : TEXCOORD2;
-                float3 bitangent : TEXCOORD3;
-                float3 posWorld : TEXCOORD4;
-                float4 uvPan : TEXCOORD5;
-                float4 screenUV : TEXCOORD6;
+                float2 uvBase : TEXCOORD0;   // original UV
+                float2 uvUse  : TEXCOORD1;   // rotated inside disk
+                float  diskMask : TEXCOORD2; // 1 center → 0 outside (soft blend)
+                float3 normal : TEXCOORD3;
+                float3 tangent : TEXCOORD4;
+                float3 bitangent : TEXCOORD5;
+                float3 posWorld : TEXCOORD6;
+                float4 uvPan : TEXCOORD7;
+                float4 screenUV : TEXCOORD8;
+                float2 dFromCenter : TEXCOORD9; // for angular ribbons
             };
+
+            float2 rotate2D(float2 v, float a)
+            {
+                float s = sin(a), c = cos(a);
+                return float2(c*v.x - s*v.y, s*v.x + c*v.y);
+            }
 
             Interpolators vert (MeshData v) 
             {
                 Interpolators o;
-                o.uv = TRANSFORM_TEX(v.uv, _albedo);
+                float2 baseUV = TRANSFORM_TEX(v.uv, _albedo);
+                o.uvBase = baseUV;
 
-                // keep your two pan directions
+                // panning (kept)
                 o.uvPan = float4(float2(0.9, 0.2) * _Time.x, float2(0.5, -0.2) * _Time.x);
 
                 // displacement (kept)
-                float height = _displacementMap.SampleLevel(sampler_displacementMap, o.uv + o.uvPan.xy, 0).r;
+                float height = _displacementMap.SampleLevel(sampler_displacementMap, baseUV + o.uvPan.xy, 0).r;
                 v.vertex.xyz += v.normal * height * _displacementIntensity;
 
-                o.normal = TransformObjectToWorldNormal(v.normal);
-                o.tangent = TransformObjectToWorldNormal(v.tangent);
-                o.bitangent = cross(o.normal, o.tangent) * v.tangent.w;
+                // vortex disk
+                float2 d = baseUV - _CircleCenterUV.xy;
+                float  r = length(d);
+                float  R = max(_CircleRadiusUV, 1e-4);
 
-                o.vertex = TransformObjectToHClip(v.vertex);
+                // soft blend for UVs, hard mask for cone power
+                float feather = max(_CircleBlendFeather, 1e-5);
+                float softMask = smoothstep(0.0, 1.0, saturate(( _CircleRadiusUV - r ) / feather)); // 1 → 0 at edge
+                float hardMask = saturate(1.0 - r / R);
+
+                // cone sink
+                float cone = pow(hardMask, _ConeFalloffPow);
+                v.vertex.xyz -= v.normal * (_ConeDepth * cone);
+
+                // UV rotation around center (actual swirling)
+                // Angle grows near the center (pow(hardMask,..)), and spins over time.
+                float theta = _CircleSpinStrength * pow(hardMask, _CircleFalloffPow) * (_CircleAngularSpeed * _Time.y);
+                float2 uvRot = _CircleCenterUV.xy + rotate2D(d, theta);
+
+                // blend rotated UV with original outside the disk
+                o.uvUse   = lerp(baseUV, uvRot, softMask);
+                o.diskMask = softMask;
+                o.dFromCenter = d; // pass for angular ribbons
+
+                // TBN & positions
+                o.normal   = TransformObjectToWorldNormal(v.normal);
+                o.tangent  = TransformObjectToWorldNormal(v.tangent);
+                o.bitangent= cross(o.normal, o.tangent) * v.tangent.w;
+
+                o.vertex   = TransformObjectToHClip(v.vertex);
                 o.screenUV = ComputeScreenPos(o.vertex);
                 o.posWorld = mul(unity_ObjectToWorld, v.vertex);
 
@@ -162,70 +202,74 @@
 
             float4 frag (Interpolators i) : SV_Target 
             {
-                float2 uv = i.uv;
+                float2 uv = i.uvUse; // rotated inside disk
                 float2 screenUV = i.screenUV.xy / i.screenUV.w;
 
-                // --- RNM normal blend (kept) ---
+                // Normal maps (use uv that rotates inside the disk)
                 float3 tN0 = UnpackNormal(_normalMap.Sample(sampler_normalMap, uv + i.uvPan.xy));
                 float3 tN1 = UnpackNormal(_normalMap.Sample(sampler_normalMap, (uv * 5) + i.uvPan.zw));
                 float3 tN  = BlendNormalRNM(tN0, tN1);
                 tN = normalize(lerp(float3(0,0,1), tN, _normalIntensity));
 
-                // --- Wave bands: modulate normal intensity in time/space (world xz) ---
+                // Bands (kept)
                 float2 bandDir = normalize(_BandDirXZ.xz + 1e-5);
-                float bandPhase = dot(i.posWorld.xz, bandDir) * _BandFreq + _Time.y * _BandSpeed;
-                float bandMask = 0.5 + 0.5 * sin(bandPhase);
+                float bandPhaseWorld = dot(i.posWorld.xz, bandDir) * _BandFreq + _Time.y * _BandSpeed;
+                float bandMask = 0.5 + 0.5 * sin(bandPhaseWorld);
                 float bandScale = lerp(1.0 - _BandAmount, 1.0 + _BandAmount, bandMask);
                 float3 tN_banded = normalize(lerp(float3(0,0,1), tN, saturate(_normalIntensity * bandScale)));
 
-                // --- Foam from normal tilt ---
+                // === Foam: make ribbons swirl inside the disk ===
+                // World-space stripes outside; angular stripes inside (based on atan2)
                 float foamCore = saturate(length(tN_banded.xy) * _foamStrength);
 
-                // --- Foam ribbons: sine bands + (very cheap) low-freq albedo channel as noise ---
-                float2 ribDir = normalize(_RibbonDirXZ.xz + 1e-5);
-                float ribPhase = dot(i.posWorld.xz, ribDir) * _RibbonFreq + _Time.y * _RibbonSpeed;
-                float ribSin = 0.5 + 0.5 * sin(ribPhase);
-                ribSin = pow(saturate(ribSin), _RibbonSharp);   // sharpen stripes
-                float ribMask = saturate(ribSin * _RibbonAmp);
+                // world version (original)
+                float2 ribDirW = normalize(_RibbonDirXZ.xz + 1e-5);
+                float ribPhaseW = dot(i.posWorld.xz, ribDirW) * _RibbonFreq + _Time.y * _RibbonSpeed;
 
-                // optional extra breakup using a low-tiling albedo sample
+                // vortex angular version (clearly circular)
+                float ang = atan2(i.dFromCenter.y, i.dFromCenter.x);
+                float ribPhaseV = ang * _RibbonFreq + _Time.y * _RibbonSpeed;
+
+                // blend: inside disk use angular stripes; outside use world stripes
+                float ribPhase = lerp(ribPhaseW, ribPhaseV, saturate(i.diskMask));
+                float ribWave  = pow(saturate(0.5 + 0.5 * sin(ribPhase)), _RibbonSharp);
+                float ribMask  = saturate(ribWave * _RibbonAmp);
+
+                // small breakup from albedo (sample with rotated uv so texture breakup also orbits)
                 float albedoNoise = _albedo.Sample(sampler_albedo, uv * 0.5).r;
                 float ribbonedFoam = foamCore * saturate(lerp(1.0, ribMask, 0.8)) * saturate(0.6 + 0.8 * albedoNoise);
 
-                // --- Refraction UV (base) ---
+                // Refraction (kept)
                 float2 refractUV = screenUV + (tN_banded.xy * _refractionIntensity);
-
-                // --- Wind: tiny traveling sine along wind dir, applied to refraction only ---
                 float2 windDir = normalize(_WindDirXZ.xz + 1e-5);
                 float windPhase = dot(i.posWorld.xz, windDir) * _WindFreq + _Time.y * _WindSpeed;
                 refractUV += windDir * (sin(windPhase) * _WindAmp);
 
-                // --- Vortex: swirl refractUV around screen-space center with radial falloff ---
+                // Optional screen-space swirl (unchanged)
                 float2 center = _SwirlCenterUV.xy;
                 float2 d = refractUV - center;
                 float r = length(d);
                 if (r > 1e-5)
                 {
                     float a = atan2(d.y, d.x);
-                    float fall = exp(-_SwirlFalloff * r);                 // stronger near center
-                    a += _SwirlStrength * fall;                           // swirl
+                    float fall = exp(-_SwirlFalloff * r);
+                    a += _SwirlStrength * fall;
                     float2 dir = float2(cos(a), sin(a));
                     refractUV = center + r * dir;
                 }
 
-                // --- Background sample (refraction) ---
+                // Background sample
                 float3 refractedBG = _CameraOpaqueTexture.Sample(sampler_CameraOpaqueTexture, refractUV);
 
-                // --- TBN (kept) ---
+                // Lighting (kept)
                 float3x3 TBN = float3x3(
                     i.tangent.x, i.bitangent.x, i.normal.x,
                     i.tangent.y, i.bitangent.y, i.normal.y,
                     i.tangent.z, i.bitangent.z, i.normal.z
                 );
                 float3 N = normalize(mul(TBN, tN_banded));
-
-                // --- Lighting (kept) ---
                 float3 surfaceColor = _albedo.Sample(sampler_albedo, uv + i.uvPan.xy).rgb * _tint.rgb;
+
                 Light L = GetMainLight();
                 float3 V = normalize(GetCameraPositionWS() - i.posWorld);
                 float3 H = normalize(V + L.direction);
@@ -236,17 +280,13 @@
                 float3 diffuse  = NdotL * surfaceColor * L.color;
                 float3 specular = pow(NdotH, _gloss * MAX_SPECULAR_POWER + 1) * _gloss * L.color;
 
-                // --- Fresnel alpha ---
                 float fresnel = pow(saturate(1.0 - dot(normalize(V), N)), _fresnelPower);
 
-                // --- Compose ---
+                // Compose (kept ratios)
                 float3 foamTerm = _foamColor.rgb * ribbonedFoam;
                 float3 waterLit = diffuse + specular;
 
-                // keep refraction visible; add a bit of lit contribution, then foam highlights
-                float3 color = lerp(refractedBG, waterLit, 0.35) + foamTerm * 0.25;
-
-                // alpha from Fresnel + foam + user control
+                float3 color = lerp(refractedBG, waterLit, 0.35) + foamTerm * 0.30;
                 float alpha = saturate(_surfaceAlpha * lerp(0.2, 1.0, fresnel) + ribbonedFoam * 0.35);
 
                 return float4(color, alpha);
