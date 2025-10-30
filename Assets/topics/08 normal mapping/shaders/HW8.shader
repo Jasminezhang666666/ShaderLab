@@ -30,17 +30,6 @@
         _SwirlStrength ("vortex strength", Range(-4.0, 4.0)) = 1.2
         _SwirlFalloff ("vortex falloff", Range(0.0, 8.0)) = 3.0
 
-        // Wind + Bands (kept)
-        _WindDirXZ ("wind dir (xz)", Vector) = (1,0,0,0)
-        _WindFreq ("wind freq", Range(0.0, 20.0)) = 6.0
-        _WindSpeed ("wind speed", Range(0.0, 8.0)) = 2.0
-        _WindAmp ("wind amp (refraction uv)", Range(0.0, 0.02)) = 0.006
-
-        _BandDirXZ ("band dir (xz)", Vector) = (0,0,1,0)
-        _BandFreq ("band freq", Range(0.0, 12.0)) = 3.0
-        _BandSpeed ("band speed", Range(0.0, 6.0)) = 0.8
-        _BandAmount ("band normal multiplier", Range(0.0, 1.0)) = 0.35
-
         // === Vortex disk (everything only inside this UV circle) ===
         _CircleCenterUV ("Vortex Center (UV)", Vector) = (0.5, 0.5, 0, 0)
         _CircleRadiusUV ("Vortex Radius (UV)", Range(0,1)) = 0.45
@@ -93,16 +82,6 @@
             float4 _SwirlCenterUV;
             float _SwirlStrength;
             float _SwirlFalloff;
-
-            float4 _WindDirXZ;
-            float _WindFreq;
-            float _WindSpeed;
-            float _WindAmp;
-
-            float4 _BandDirXZ;
-            float _BandFreq;
-            float _BandSpeed;
-            float _BandAmount;
 
             float4 _CircleCenterUV;
             float _CircleRadiusUV;
@@ -179,7 +158,6 @@
                 v.vertex.xyz -= v.normal * (_ConeDepth * cone);
 
                 // UV rotation around center (actual swirling)
-                // Angle grows near the center (pow(hardMask,..)), and spins over time.
                 float theta = _CircleSpinStrength * pow(hardMask, _CircleFalloffPow) * (_CircleAngularSpeed * _Time.y);
                 float2 uvRot = _CircleCenterUV.xy + rotate2D(d, theta);
 
@@ -211,16 +189,8 @@
                 float3 tN  = BlendNormalRNM(tN0, tN1);
                 tN = normalize(lerp(float3(0,0,1), tN, _normalIntensity));
 
-                // Bands (kept)
-                float2 bandDir = normalize(_BandDirXZ.xz + 1e-5);
-                float bandPhaseWorld = dot(i.posWorld.xz, bandDir) * _BandFreq + _Time.y * _BandSpeed;
-                float bandMask = 0.5 + 0.5 * sin(bandPhaseWorld);
-                float bandScale = lerp(1.0 - _BandAmount, 1.0 + _BandAmount, bandMask);
-                float3 tN_banded = normalize(lerp(float3(0,0,1), tN, saturate(_normalIntensity * bandScale)));
-
                 // === Foam: make ribbons swirl inside the disk ===
-                // World-space stripes outside; angular stripes inside (based on atan2)
-                float foamCore = saturate(length(tN_banded.xy) * _foamStrength);
+                float foamCore = saturate(length(tN.xy) * _foamStrength);
 
                 // world version (original)
                 float2 ribDirW = normalize(_RibbonDirXZ.xz + 1e-5);
@@ -239,11 +209,8 @@
                 float albedoNoise = _albedo.Sample(sampler_albedo, uv * 0.5).r;
                 float ribbonedFoam = foamCore * saturate(lerp(1.0, ribMask, 0.8)) * saturate(0.6 + 0.8 * albedoNoise);
 
-                // Refraction (kept)
-                float2 refractUV = screenUV + (tN_banded.xy * _refractionIntensity);
-                float2 windDir = normalize(_WindDirXZ.xz + 1e-5);
-                float windPhase = dot(i.posWorld.xz, windDir) * _WindFreq + _Time.y * _WindSpeed;
-                refractUV += windDir * (sin(windPhase) * _WindAmp);
+                // Refraction (kept, no wind)
+                float2 refractUV = screenUV + (tN.xy * _refractionIntensity);
 
                 // Optional screen-space swirl (unchanged)
                 float2 center = _SwirlCenterUV.xy;
@@ -267,7 +234,7 @@
                     i.tangent.y, i.bitangent.y, i.normal.y,
                     i.tangent.z, i.bitangent.z, i.normal.z
                 );
-                float3 N = normalize(mul(TBN, tN_banded));
+                float3 N = normalize(mul(TBN, tN));
                 float3 surfaceColor = _albedo.Sample(sampler_albedo, uv + i.uvPan.xy).rgb * _tint.rgb;
 
                 Light L = GetMainLight();
