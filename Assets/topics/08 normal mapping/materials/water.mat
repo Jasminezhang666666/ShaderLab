@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: water
-  m_Shader: {fileID: 4800000, guid: 559585ea39f1d4bc6b605a9f3f32f478, type: 3}
+  m_Shader: {fileID: 4800000, guid: a2e27dd7b8731db4489777e4b82503c8, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -37,13 +37,100 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _AlphaBias: 0.2
+    - _BandAmount: 0
+    - _BandFreq: 0
+    - _BandSpeed: 0
+    - _BreakerRoll: 0.5
+    - _Choppy: 0.25
+    - _CrestFoamBoost: 1.2
+    - _CrestThreshold: 0.75
+    - _DetailRotateDegrees: 33
+    - _DetailRotateDegreesB: -17
+    - _DetailScale: 5
+    - _DetailScaleB: 7.5
+    - _DispGlobalScale: 0.108
+    - _EdgeFoamAlpha: 0.65
+    - _EdgeFoamIntensity: 1.2
+    - _EdgeFoamWidth: 0.055
+    - _FoamAmount: 0.45
+    - _FoamNoiseAmount: 0.8
+    - _FoamNoiseScale: 2
+    - _FoamNoiseSpeed: 0.6
+    - _FoamSharpness: 3
+    - _FoamSizeMeters: 2
+    - _FoamSoftness: 0.1
+    - _FoamSpeed: 0.35
+    - _FoamThreshold: 0.301
+    - _LineWaveAmp: 0.1
+    - _LineWaveScale: 5
+    - _LineWaveSpeed: 0.8
+    - _LineWaveWarp: 0.3
+    - _LineWaveWarpScale: 2
+    - _MicroNormalScale: 36
+    - _MicroNormalStrength: 0.35
+    - _PhaseJitterAmp: 0.35
+    - _RibbonAmp: 0.6
+    - _RibbonFreq: 2.2
+    - _RibbonSharp: 2.5
+    - _RibbonSpeed: 1.2
+    - _RimFoamIntensity: 1.84
+    - _RimFoamLightMix: 0.147
+    - _RimFoamPower: 1.02
+    - _RimFoamWidth: 0
+    - _ShoreAmp: 0.6
+    - _ShoreBandWidth: 8
+    - _ShoreDetailAmp: 0.022
+    - _ShoreFoamWidth: 0.08
+    - _ShoreSpeed: 0.49
+    - _ShoreWavelength: 0.6
+    - _SwirlFalloff: 0
+    - _SwirlStrength: -4
+    - _VortexCount: 0
+    - _VortexFoamBoost: 0.8
+    - _VortexNormalTurn: 0.25
+    - _VortexRadius: 0.2
+    - _VortexRefraction: 0.12
+    - _VortexStrength: 1.22
+    - _WindAmp: 0
+    - _WindAmpScale: 0.25
+    - _WindFreq: 0
+    - _WindPanScale: 0.6
+    - _WindSpeed: 0
+    - _WindSpreadDegrees: 10
+    - _WindStrength: 0.89
     - _displacementIntensity: 0.087
+    - _foamStrength: 0.8
+    - _fresnelPower: 3
     - _gloss: 1
     - _normalIntensity: 1
     - _opacity: 0.305
     - _refractionIntensity: 0.022
+    - _specBoost: 1
     - _specularContrast: 100
     - _specularIntensity: 1
-    m_Colors: []
+    - _surfaceAlpha: 0.4
+    m_Colors:
+    - _BandDirXZ: {r: 0, g: 0, b: 1, a: 0}
+    - _EdgeFoamColor: {r: 0.8153425, g: 0.019607842, b: 1, a: 1}
+    - _FoamColor: {r: 1, g: 1, b: 1, a: 0}
+    - _LineWaveDir: {r: 1, g: 0, b: 0, a: 0}
+    - _Pan1: {r: 0.9, g: 0.2, b: 0, a: 0}
+    - _Pan2: {r: 0.5, g: -0.2, b: 0, a: 0}
+    - _RibbonDirXZ: {r: 1, g: 0, b: 0, a: 0}
+    - _RimFoamColor: {r: 1, g: 0.9184297, b: 0, a: 1}
+    - _ShoreDir: {r: 0, g: 1, b: 0, a: 0}
+    - _ShoreFoamColor: {r: 1, g: 1, b: 1, a: 1}
+    - _ShorePoint: {r: 0, g: 0, b: 0, a: 0}
+    - _SwirlCenterUV: {r: 0.5, g: 0.5, b: 0, a: 0}
+    - _VortexCenterXZ: {r: 0, g: 0, b: 0, a: 0}
+    - _VortexPos0: {r: 0, g: 0, b: 0.8, a: 2.5}
+    - _VortexPos1: {r: 0, g: 0, b: 0, a: 2}
+    - _VortexPos2: {r: 0, g: 0, b: 0, a: 2}
+    - _VortexPos3: {r: 0, g: 0, b: 0, a: 2}
+    - _WindDir: {r: 1, g: 0, b: 0, a: 0}
+    - _WindDirXZ: {r: 1, g: 0, b: 0, a: 0}
+    - _foamColor: {r: 1, g: 1, b: 1, a: 1}
+    - _tint: {r: 0, g: 0.78893614, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
