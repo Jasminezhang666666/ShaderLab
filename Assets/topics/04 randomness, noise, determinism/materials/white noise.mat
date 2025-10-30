@@ -1,0 +1,164 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: white noise
+  m_Shader: {fileID: 4800000, guid: 7a17ad1a7d0579743af6b065ed725891, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseTex:
+        m_Texture: {fileID: 2800000, guid: ec12686c1f9bfd949b2cec53ef34f92c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BlueTex:
+        m_Texture: {fileID: 2800000, guid: ec12686c1f9bfd949b2cec53ef34f92c, type: 3}
+        m_Scale: {x: 1, y: 2}
+        m_Offset: {x: 0, y: 0}
+    - _NormalTex:
+        m_Texture: {fileID: 2800000, guid: ec12686c1f9bfd949b2cec53ef34f92c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Tex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _AbsorbStrength: 0.81
+    - _AmpA: 0.01
+    - _AmpB: 0.012
+    - _AmpC: 0.015
+    - _Amplitude: 0.015
+    - _Angle1: 0
+    - _Angle2: 30
+    - _Angle3: -25
+    - _BandAEnd: 0.4
+    - _BandBEnd: 0.75
+    - _BandEdge: 0.03
+    - _BandSoft: 0.413
+    - _BaseMix: 0.6
+    - _BlueTexInfluence: 0.35
+    - _Brightness: 1.81
+    - _ChromaticAber: 0.667
+    - _Contrast: 1.87
+    - _CrestFilter: 1.5
+    - _CrestNoise: 0.586
+    - _CrestThreshold: 1.72
+    - _CrestWidth: 0.264
+    - _CurveThr: 0.182
+    - _DistortAmp: 0.104
+    - _DriftAngleDeg: -76
+    - _DriftSpeed: 0.13
+    - _EffectBottom: 0.25
+    - _EffectTop: 1
+    - _FalloffEnd: 0.8
+    - _FalloffPower: 1.2
+    - _FalloffStart: 0
+    - _FlowSpeed: 1.2
+    - _FlowStrength: 0.074
+    - _FoamLevel: 0.72
+    - _FoamSlopeMul: 6
+    - _FoamStrength: 0.7
+    - _FoamThresh: 0.78
+    - _FoamThreshold: 1.52
+    - _FoamWidth: 0.04
+    - _FresnelPow: 3
+    - _HighlightBoost: 0.417
+    - _JitterScale: 17.2
+    - _JitterSpeed: 3.27
+    - _JitterStrength: 0.0135
+    - _NormalStrength: 0
+    - _RefractStrength: 0.0137
+    - _RippleAmp: 0.6
+    - _Scale: 2
+    - _Scale1: 2
+    - _Scale2: 3
+    - _Scale3: 200
+    - _ScaleA: 90
+    - _ScaleB: 70
+    - _ScaleC: 50
+    - _ScaleW: 120
+    - _ShadowLift: 0.186
+    - _SlopeThr: 0.579
+    - _Sparkle: 0.303
+    - _SpecPower: 75.2
+    - _SpecStrength: 0.64
+    - _Speed: 3.64
+    - _Speed1: 0.94
+    - _Speed2: 0.9
+    - _Speed3: 10
+    - _SpeedA: 0.8
+    - _SpeedB: 1.1
+    - _SpeedC: 1.6
+    - _SpeedW: 2.2
+    - _Strength1: 0.079
+    - _Strength2: 0.35
+    - _Strength3: 1
+    - _SunAngleDeg: -83
+    - _SunConeAngleDeg: 37
+    - _SunConeSoft: 0.14
+    - _SunDirAngleDeg: 82
+    - _SunDistFalloff: 0.87
+    - _SunWarmStrength: 1.64
+    - _TexAmount: 0.25
+    - _TexTiling: 6
+    - _TopYStart: 0.18
+    - _TravelAngleDeg: -35
+    - _VarAmount: 0.788
+    - _VarScale: 100
+    - _VarSpeed: 1.21
+    - _WarmHeightThr: 0.55
+    - _WarmNoiseAmt: 0.25
+    - _WarmNormalThr: 0.25
+    - _WarmStrength: 1.18
+    - _Wave1Amp: 0.077
+    - _Wave1AngleDeg: 0
+    - _Wave1Freq: 8.8
+    - _Wave1Speed: 2.56
+    - _Wave2Amp: 0.035
+    - _Wave2AngleDeg: 45
+    - _Wave2Freq: 13.6
+    - _Wave2PhaseOff: 2.62
+    - _Wave2Speed: 1.21
+    - _WhiteBoost: 0.6
+    - _WhiteLevel: 0.7
+    - _WhiteSoft: 0.04
+    - _scale: 50
+    m_Colors:
+    - _AbsorbColor: {r: 0.114012085, g: 0.5658591, b: 0.90188676, a: 1}
+    - _AbsorbStartEnd: {r: 0.2, g: 1.16, b: 0, a: 0}
+    - _DeepColor: {r: 0.02, g: 0.09999997, b: 0.21999997, a: 1}
+    - _FlowDir: {r: 1, g: 0, b: 0, a: 0}
+    - _FoamColor: {r: 1, g: 0.938499, b: 0, a: 1}
+    - _Highlight: {r: 1, g: 1, b: 1, a: 1}
+    - _LayerMix: {r: 0.35, g: 0.45, b: 0.2, a: 0}
+    - _MidColor: {r: 0.059999965, g: 0.24999997, b: 0.5, a: 1}
+    - _ShallowColor: {r: 0.079999976, g: 0.34999996, b: 0.54999995, a: 1}
+    - _SunApexUV: {r: 0.5, g: -0.2, b: 0, a: 0}
+    - _SunColor: {r: 0.9730157, g: 1, b: 0.10196078, a: 1}
+    - _SunWarmColor: {r: 1, g: 0.91976076, b: 0.1716981, a: 1}
+    - _Tint: {r: 0.25098047, g: 0.6158766, b: 0.9019608, a: 1}
+    - _Tint2: {r: 0.693535, g: 0.89433956, b: 0.89433956, a: 1}
+    - _Tint3: {r: 0.8509433, g: 0.85860354, b: 1, a: 1}
+    - _WarmColor: {r: 1.05, g: 0.95, b: 0.6, a: 1}
+    - _WaterColor: {r: 0.049999982, g: 0.24999997, b: 0.39999998, a: 1}
+    - _WhiteColor: {r: 0.95, g: 0.97999996, b: 1, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

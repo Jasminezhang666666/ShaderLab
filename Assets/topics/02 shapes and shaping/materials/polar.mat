@@ -1,0 +1,115 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: polar
+  m_Shader: {fileID: 4800000, guid: e488140eef488a943b3c42904a1f2f05, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords:
+  - _APPLYSTEPTOWAVES_ON
+  - _MIRROR_ON
+  - _OVALOPPOSITE_ON
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs: []
+    m_Ints: []
+    m_Floats:
+    - _ApplyStepToWaves: 1
+    - _BGHueScroll: 0.05
+    - _BaseHueScroll: 0.05
+    - _CenterHole: 0.05
+    - _Density: 40
+    - _EllInnerStepRate: 0.9
+    - _EllOuterStepRate: 0.6
+    - _EllipseA: 0.35
+    - _EllipseB: 0.18
+    - _EllipseEdgeAA: 0.01
+    - _EllipseSplitNorm: 0.45
+    - _EllipseStepRate: 0.9
+    - _EllipsesPerUnit: 6
+    - _Height: 0.1
+    - _HueScroll: 0.08
+    - _LineAngleOffset: 0
+    - _LinesPerSector: 3
+    - _Mirror: 1
+    - _MixEllipse: 0.6
+    - _MixPetals: 0.6
+    - _MixRings: 0.4
+    - _MixSpokes: 0.3
+    - _MixWave: 0.603
+    - _Offset: 0.4
+    - _OuterFade: 1.05
+    - _OvalOpposite: 1
+    - _PetalAmp: 0.35
+    - _PetalFreq: 6
+    - _PetalSharpness: 4
+    - _PetalStepRate: 0.7
+    - _RadialScale: 1
+    - _RingFreq: 18
+    - _RingWidth: 0.015
+    - _RotSpeed: 0.5
+    - _SatBoost: 1.35
+    - _Scale: 1
+    - _Segments: 8
+    - _ShapeSatBoost: 1.4
+    - _ShapeValBoost: 1.25
+    - _SpokeFreq: 12
+    - _StepHz: 1
+    - _StepMul: 1
+    - _Transition: 0
+    - _ValBoost: 1.2
+    - _Vignette: 0.8
+    - _VisibleStepFrac: 0.44
+    - _WaveAmp: 0.412
+    - _WaveAngFreq: 10
+    - _WaveDarkPower: 1.2
+    - _WaveDarkStrength: 0.65
+    - _WaveLinesPerUnit: 8
+    - _WaveSpeed: 0.6
+    - _WaveStepRate: 0.6
+    - _WaveSwirl: 3
+    - _WaveWidth: 0.045
+    - _t: 0
+    m_Colors:
+    - _BG: {r: 0, g: 0, b: 0, a: 1}
+    - _BGInner: {r: 0.049999982, g: 0, b: 0.09999997, a: 1}
+    - _BGOuter: {r: 0, g: 0, b: 0, a: 1}
+    - _ColA: {r: 0.049999982, g: 0.09999997, b: 0.6, a: 1}
+    - _ColB: {r: 0.65, g: 0.09999997, b: 0.8, a: 1}
+    - _ColC: {r: 0.1466294, g: 0.9490196, b: 0.05098037, a: 1}
+    - _EllC1: {r: 1, g: 0.09999997, b: 0.7, a: 1}
+    - _EllC2: {r: 0.09999997, g: 1, b: 0.9, a: 1}
+    - _EllC3: {r: 0.95, g: 0.29999998, b: 0.09999997, a: 1}
+    - _EllC4: {r: 0.29999998, g: 0.95, b: 0.09999997, a: 1}
+    - _EllInnerC1: {r: 1, g: 0.09999997, b: 0.7, a: 1}
+    - _EllInnerC2: {r: 0.09999997, g: 1, b: 0.9, a: 1}
+    - _EllInnerC3: {r: 0.95, g: 0.29999998, b: 0.09999997, a: 1}
+    - _EllInnerC4: {r: 0.29999998, g: 0.95, b: 0.09999997, a: 1}
+    - _EllOuterC1: {r: 0.14999998, g: 0.8, b: 1, a: 1}
+    - _EllOuterC2: {r: 1, g: 0.14999998, b: 0.34999996, a: 1}
+    - _EllOuterC3: {r: 0.95, g: 0.95, b: 0.09999997, a: 1}
+    - _EllOuterC4: {r: 0.19999996, g: 1, b: 0.5, a: 1}
+    - _PetalC1: {r: 1, g: 0.24999997, b: 0.09999997, a: 1}
+    - _PetalC2: {r: 0.09999997, g: 0.95, b: 0.24999997, a: 1}
+    - _PetalC3: {r: 0.14999998, g: 0.34999996, b: 1, a: 1}
+    - _PetalC4: {r: 1, g: 0.9, b: 0.14999998, a: 1}
+    - _WaveC1: {r: 0.09999997, g: 0.7, b: 1, a: 1}
+    - _WaveC2: {r: 1, g: 0.09999997, b: 0.39999998, a: 1}
+    - _WaveC3: {r: 0.95, g: 0.95, b: 0.09999997, a: 1}
+    - _WaveC4: {r: 0.19999996, g: 1, b: 0.5, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

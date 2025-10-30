@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: sunset
+  m_Shader: {fileID: 4800000, guid: bf5d9d7ec8ec74b17b89e79a9227b1bb, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _baseTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _blendTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _mask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _tex1:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _tex2:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _tex3:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats: []
+    m_Colors:
+    - _ColorSun: {r: 0.972549, g: 0.937255, b: 0.823529, a: 1}
+    - _color2: {r: 0, g: 0, b: 1, a: 1}
+    - _colorSea: {r: 0.33013162, g: 0.650362, b: 0.8792453, a: 1}
+    - _colorSea1: {r: 0.3019608, g: 0.3930037, b: 0.6156863, a: 1}
+    - _colorSea2: {r: 0.15170519, g: 0.21475646, b: 0.5622641, a: 1}
+    - _colorSea3: {r: 0.111221045, g: 0.111221045, b: 0.4641509, a: 1}
+    - _colorSky1: {r: 0.9245283, g: 0.7262112, b: 0.43784258, a: 1}
+    - _colorSky2: {r: 0.7433963, g: 0.36167827, b: 0.1837451, a: 1}
+    - _colorSky3: {r: 0.5698112, g: 0.07633321, b: 0.07633321, a: 1}
+    - _colorSun: {r: 0.94716984, g: 0.89002925, b: 0.7059096, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
