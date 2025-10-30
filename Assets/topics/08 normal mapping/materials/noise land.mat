@@ -37,7 +37,7 @@ Material:
     - _scale: 4.4
     m_Colors:
     - _highColor: {r: 0.68907976, g: 0.79353386, b: 0.8962264, a: 1}
-    - _lowColor: {r: 0.14373443, g: 0.25130364, b: 0.3207547, a: 1}
+    - _lowColor: {r: 0.16003557, g: 0.24157192, b: 0.3433962, a: 1}
     - _midColor: {r: 0.6320754, g: 0.47661215, b: 0.41442683, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
