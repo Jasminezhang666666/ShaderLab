@@ -53,9 +53,9 @@
                 float3 color = 0;
                 float3 coord = normalize(i.uv) * 0.5 + 0.5;
                 color = coord;
-                
-                color = lerp(_colorLow, _colorHigh, pow(coord.y + _offset, _contrast));
 
+                color = lerp(_colorLow, _colorHigh, pow(coord.y + _offset, _contrast));
+                
                 return float4(color, 1.0);
             }
             ENDHLSL

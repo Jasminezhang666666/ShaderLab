@@ -3,7 +3,7 @@
         _albedo ("albedo", 2D) = "white" {}
         [NoScaleOffset] _normalMap ("normal map", 2D) = "bump" {}
         [NoScaleOffset] _displacementMap ("displacement map", 2D) = "black" {}
-        
+        [NoScaleOffset] _IBL ("IBL cube map", Cube) = "black" {}
         _gloss ("gloss", Range(0,1)) = 1
         _normalIntensity ("normal intensity", Range(0, 1)) = 1
         _displacementIntensity ("displacement intensity", Range(0, 0.5)) = 0.25
@@ -17,7 +17,7 @@
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
-            
+            #define DIFFUSE_MIP_LEVEL 5
             #define MAX_SPECULAR_POWER 256
 
             CBUFFER_START(UnityPerMaterial)
@@ -37,6 +37,8 @@
             TEXTURE2D(_displacementMap);
             SAMPLER(sampler_displacementMap);
 
+            TEXTURECUBE(_IBL);
+            SAMPLER(sampler_IBL);
             
             
             struct MeshData {
@@ -108,8 +110,19 @@
                 float3 color = 0;
                 float3 surfaceColor = SAMPLE_TEXTURE2D(_albedo, sampler_albedo, i.uv).rgb;
 
-                
-                
+                float3 normal = get_normal(i);
+                float2 directFalloff = lighting_falloff(i, normal);
+                float directDiffuseFalloff = directFalloff.x;
+                float directSpecularFalloff = directFalloff.y;
+
+                float3 indirectDiffuse = SAMPLE_TEXTURECUBE_LOD(_IBL, sampler_IBL, normal, DIFFUSE_MIP_LEVEL);
+
+                Light light = GetMainLight();
+                float3 diffuse = surfaceColor * (directDiffuseFalloff * light.color + indirectDiffuse);
+                float3 directSpecular = light.color * directSpecularFalloff;
+
+                color = diffuse + directSpecular;
+
                 return float4(color, 1.0);
             }
             ENDHLSL
