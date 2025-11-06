@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: HW9_Glass_RefractReflect
-  m_Shader: {fileID: 4800000, guid: 938279fa70612d74090b2776c4d20ccd, type: 3}
+  m_Name: HW9_Ball_PearlPlastic 3
+  m_Shader: {fileID: 4800000, guid: 1681f5bd411f7be46a9e235929c5d9b4, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -29,15 +29,11 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _F0Power: 1.41
-    - _Gloss: 0.91
-    - _Opacity: 0.847
-    - _ReflGloss: 0.988
-    - _Reflect: 0.845
-    - _Reflectivity: 0.877
-    - _RefractStr: 0.0514
-    - _Refraction: 0.025
+    - _CoatReflect: 0.845
+    - _CoatRough: 0
+    - _FresnelPower: 0
+    - _Gloss: 0.359
     m_Colors:
-    - _Tint: {r: 0.09477388, g: 0.5773585, b: 0.12253625, a: 1}
+    - _Albedo: {r: 0.976841, g: 1, b: 0, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

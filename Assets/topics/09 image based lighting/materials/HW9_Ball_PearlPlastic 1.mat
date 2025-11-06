@@ -29,10 +29,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _CoatReflect: 0.854
-    - _CoatRough: 0.52
-    - _FresnelPower: 1.55
-    - _Gloss: 0.525
+    - _CoatReflect: 0.824
+    - _CoatRough: 0.475
+    - _FresnelPower: 1.95
+    - _Gloss: 0.43
     m_Colors:
     - _Albedo: {r: 0.3609006, g: 0.9019608, b: 0.19999999, a: 1}
   m_BuildTextureStacks: []
