@@ -24,17 +24,17 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _IBL:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 8900000, guid: 2dc14730e831e6a4ea639227c0f59d6c, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _FresnelPower: 5
+    - _FresnelPower: 0
     - _Reflectivity: 0.95
-    - _Roughness: 0.15
-    - _TintMix: 0.5
+    - _Roughness: 0
+    - _TintMix: 0.757
     m_Colors:
-    - _TintHigh: {r: 1, g: 0.8, b: 0.29999998, a: 1}
-    - _TintLow: {r: 1, g: 0.5, b: 0.8, a: 1}
+    - _TintHigh: {r: 0.9169811, g: 0.08131714, b: 0.17836948, a: 1}
+    - _TintLow: {r: 0.2848391, g: 0.90188676, b: 0.19569229, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

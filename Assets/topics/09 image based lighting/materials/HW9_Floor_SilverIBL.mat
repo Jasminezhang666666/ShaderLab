@@ -24,18 +24,18 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _IBL:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 8900000, guid: 2dc14730e831e6a4ea639227c0f59d6c, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _ChevronFreq: 0.2
-    - _ChevronMix: 0.35
-    - _Gloss: 0.964
-    - _Reflectivity: 0.944
+    - _ChevronFreq: 0.32
+    - _ChevronMix: 0.488
+    - _Gloss: 0.905
+    - _Reflectivity: 1
     m_Colors:
-    - _BaseTint: {r: 0.5, g: 0.5, b: 0.54999995, a: 1}
-    - _ChevronA: {r: 0.8, g: 0.19999996, b: 1, a: 1}
-    - _ChevronB: {r: 0.09999997, g: 0.6, b: 1, a: 1}
+    - _BaseTint: {r: 0.15471691, g: 0.15471691, b: 0.15471691, a: 1}
+    - _ChevronA: {r: 0.6337946, g: 1, b: 0.19999999, a: 1}
+    - _ChevronB: {r: 0.02787452, g: 0.0724944, b: 0.98490566, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

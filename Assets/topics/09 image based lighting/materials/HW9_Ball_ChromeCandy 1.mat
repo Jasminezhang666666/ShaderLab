@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: HW9_Quad_ColorChecker
-  m_Shader: {fileID: 4800000, guid: 97db24f97c84a8d47a554f49d8d3b1c6, type: 3}
+  m_Name: HW9_Ball_ChromeCandy 1
+  m_Shader: {fileID: 4800000, guid: 07ca0c65c66bda64497f6ec5f0a154be, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -29,17 +29,12 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _LineFreq: 2.5
-    - _Mix: 0.274
-    - _Scale: 0.87
-    - _Scroll: 0.6
-    - _Skew: -0.22
+    - _FresnelPower: 4.69
+    - _Reflectivity: 0.95
+    - _Roughness: 0.786
+    - _TintMix: 0.757
     m_Colors:
-    - _A: {r: 1, g: 0.39999998, b: 0.19999996, a: 1}
-    - _B: {r: 0.19999996, g: 0.6, b: 1, a: 1}
-    - _C: {r: 1, g: 1, b: 0.29999998, a: 1}
-    - _Col1: {r: 0.9490196, g: 0.19999999, b: 0.3307232, a: 1}
-    - _Col2: {r: 0.14901961, g: 0.9019608, b: 0.1498136, a: 1}
-    - _Col3: {r: 0.098039195, g: 0.9019608, b: 0.78267026, a: 1}
+    - _TintHigh: {r: 0.9169811, g: 0.08131714, b: 0.17836948, a: 1}
+    - _TintLow: {r: 0.2848391, g: 0.90188676, b: 0.19569229, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
