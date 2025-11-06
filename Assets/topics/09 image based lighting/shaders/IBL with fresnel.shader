@@ -3,7 +3,9 @@
         _albedo ("albedo", 2D) = "white" {}
         [NoScaleOffset] _normalMap ("normal map", 2D) = "bump" {}
         [NoScaleOffset] _displacementMap ("displacement map", 2D) = "gray" {}
+        
         [NoScaleOffset] _IBL ("IBL cube map", Cube) = "black" {}
+        
         
         // how smooth the surface is - sharpness of specular reflection
         _gloss ("gloss", Range(0,1)) = 1
@@ -137,7 +139,9 @@
                 float3 indirectSpecular = SAMPLE_TEXTURECUBE_LOD(_IBL, sampler_IBL, viewReflection, mip);
 
 
-                
+                float fresnel = 1 - saturate(dot(viewDirection, normal));
+                fresnel = pow(fresnel, _fresnelPower);
+                reflectivity *= fresnel;
                 
                 
                 // since the diffuse and reflective properties of an object are inversely related, we want to set up our surface color to lerp between black and the albedo based on the inverse of reflectivity

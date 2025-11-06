@@ -46,7 +46,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _contrast: 1
-    - _displacementIntensity: 0.25
+    - _displacementIntensity: 0.115
     - _gloss: 0.356
     - _normalIntensity: 1
     - _offset: 0

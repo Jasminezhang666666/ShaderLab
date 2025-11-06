@@ -29,9 +29,9 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _fresnelPower: 2.56
+    - _fresnelPower: 1.32
     - _gloss: 0.644
-    - _reflectivity: 0.795
+    - _reflectivity: 0.516
     m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1

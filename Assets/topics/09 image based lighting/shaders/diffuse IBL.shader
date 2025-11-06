@@ -112,7 +112,7 @@
 
                 float3 normal = get_normal(i);
                 float2 directFalloff = lighting_falloff(i, normal);
-                float directDiffuseFalloff = directFalloff.x;
+                float directDiffuseFalloff  = directFalloff.x;
                 float directSpecularFalloff = directFalloff.y;
 
                 float3 indirectDiffuse = SAMPLE_TEXTURECUBE_LOD(_IBL, sampler_IBL, normal, DIFFUSE_MIP_LEVEL);
@@ -122,7 +122,6 @@
                 float3 directSpecular = light.color * directSpecularFalloff;
 
                 color = diffuse + directSpecular;
-
                 return float4(color, 1.0);
             }
             ENDHLSL

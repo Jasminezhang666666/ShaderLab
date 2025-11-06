@@ -129,15 +129,18 @@
                 float3 viewDirection = normalize(GetCameraPositionWS() - i.worldPos);
                 float3 viewReflection = reflect(-viewDirection, normal);
                 
+                float mip = (1-_gloss) * SPECULAR_MIP_STEPS;
+                float3 indirectSpecular = SAMPLE_TEXTURECUBE_LOD(_IBL, sampler_IBL, viewReflection, mip);
                 
-                float3 surfaceColor = SAMPLE_TEXTURE2D(_albedo, sampler_albedo, i.uv).rgb;
+                
+                float3 surfaceColor = SAMPLE_TEXTURE2D(_albedo, sampler_albedo, i.uv).rgb * (1 - _reflectivity);
 
                 Light light = GetMainLight();
                 // sum up all incoming light (direct + indirect) then multiply by the surface color, because the surface color still fully determines what light gets absorbed/reflected
                 float3 diffuse = surfaceColor * (directDiffuseFalloff * light.color + indirectDiffuse);
 
                 float3 directSpecular = light.color * directSpecularFalloff;
-                float3 specular = directSpecular;
+                float3 specular = directSpecular + indirectSpecular * _reflectivity;
                 
                 color = diffuse + specular;
                 return float4(color, 1.0);

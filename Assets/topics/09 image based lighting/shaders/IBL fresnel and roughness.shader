@@ -3,7 +3,7 @@
         _albedo ("albedo", 2D) = "white" {}
         [NoScaleOffset] _normalMap ("normal map", 2D) = "bump" {}
         [NoScaleOffset] _displacementMap ("displacement map", 2D) = "gray" {}
-        
+        [NoScaleOffset] _roughnessMap ("roughness map", 2D) = "white" {}
         [NoScaleOffset] _IBL ("IBL cube map", Cube) = "black" {}
 
         // brightness of specular reflection - proportion of color contributed by diffuse and specular
@@ -43,7 +43,8 @@
             TEXTURE2D(_displacementMap);
             SAMPLER(sampler_displacementMap);
 
-            
+            TEXTURE2D(_roughnessMap);
+            SAMPLER(sampler_roughnessMap);
             
             TEXTURECUBE(_IBL);
             SAMPLER(sampler_IBL);
@@ -100,7 +101,7 @@
             // function to claculate direct diffuse and direct specular falloff
             // r: diffuse falloff
             // g: specular falloff
-            float2 lighting_falloff (Interpolators i, float3 normal) {
+            float2 lighting_falloff (Interpolators i, float3 normal, float roughness) {
                 Light light = GetMainLight();
                 
                 float3 viewDirection = normalize(GetCameraPositionWS() - i.worldPos);
@@ -108,7 +109,7 @@
 
                 float directDiffuse = max(0, dot(normal, light.direction));
                 float directSpecular = max(0, dot(normal, halfDirection));
-                float gloss = 1;
+                float gloss = 1-roughness;
                 directSpecular = pow(directSpecular, gloss * MAX_SPECULAR_POWER + 1) * gloss;
 
                 return float2(directDiffuse, directSpecular);
@@ -119,9 +120,9 @@
                 float3 normal = get_normal(i);
                 float roughness = 1;
 
+                roughness = SAMPLE_TEXTURE2D(_roughnessMap, sampler_roughnessMap, i.uv).r;
                 
-                
-                float2 directFalloff = lighting_falloff(i, normal);
+                float2 directFalloff = lighting_falloff(i, normal, roughness);
                 float directDiffuseFalloff  = directFalloff.r;
                 float directSpecularFalloff = directFalloff.g;
                 
@@ -152,6 +153,7 @@
                 float3 specular = directSpecular + indirectSpecular * reflectivity;
                 
                 color = diffuse + specular;
+                
                 return float4(color, 1.0);
             }
             ENDHLSL

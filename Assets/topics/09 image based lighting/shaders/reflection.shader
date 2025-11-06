@@ -4,7 +4,7 @@
         
         // smoothness of surface - sharpness of reflection
         _gloss ("gloss", Range(0,1)) = 1
-        
+        _reflectivity ("reflectivity", Range(0, 1)) = 0.5
     }
     SubShader {
         Tags {
@@ -17,10 +17,12 @@
             #pragma fragment frag
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-            
 
+            #define SPECULAR_MIP_STEPS 4
+            
             CBUFFER_START(UnityPerMaterial)
             float _gloss;
+            float _reflectivity;
             CBUFFER_END
 
             TEXTURECUBE(_IBL);
@@ -56,8 +58,13 @@
                 float3 normal = normalize(i.normal);
 
                 float3 viewDirection = normalize(GetCameraPositionWS() - i.worldPos);
-                
+                float3 viewReflection = reflect(-viewDirection, normal);
 
+                float mip = (1-_gloss) * SPECULAR_MIP_STEPS;
+                
+                float3 indirectSpecular = SAMPLE_TEXTURECUBE_LOD(_IBL, sampler_IBL, viewReflection, mip);
+
+                color = indirectSpecular * _reflectivity;
                 return float4(color, 1.0);
             }
             ENDHLSL
