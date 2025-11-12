@@ -96,7 +96,7 @@
             }
             
             float4 frag (Interpolators i) : SV_Target {
-                float3 color = convolution(i.uv, edgeDetectionKernel());
+                float3 color = convolution(i.uv, embossKernel());
                 return float4(color, 1.0);
             }
             ENDHLSL

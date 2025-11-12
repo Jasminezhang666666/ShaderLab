@@ -38,6 +38,22 @@
             float4 frag (Interpolators i) : SV_Target {
                 float2 uv = i.uv;
                 float3 color = 0;
+
+                float3x3 boxBlurKernel = float3x3 (
+                    0.11, 0.11, 0.11,
+                    0.11, 0.11, 0.11,
+                    0.11, 0.11, 0.11
+                );
+
+                float2 ts = _BlitTexture_TexelSize.xy;
+                for (int x = -1; x <= 1; x++) {
+                    for (int y = -1; y <= 1; y++) {
+                        float2 offset = float2(x, y) * ts;
+                        float3 sample = SAMPLE_TEXTURE2D(_BlitTexture, sampler_BlitTexture, uv + offset);
+
+                        color += sample * boxBlurKernel[x+1][y+1];
+                    }
+                }
                 
                 return float4(color, 1.0);
             }

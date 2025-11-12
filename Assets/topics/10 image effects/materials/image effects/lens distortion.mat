@@ -25,8 +25,8 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _distortion: 10
-    - _scale: 0.47
+    - _distortion: -0.88
+    - _scale: 1.29
     m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1

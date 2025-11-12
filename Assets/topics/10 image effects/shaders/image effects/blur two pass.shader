@@ -1,6 +1,6 @@
 ﻿Shader "shader lab/week 10/two pass blur" {
     Properties {
-        
+        _blurSize ("blur size", float) = 1
     }
     SubShader {
         Tags { "RenderPipeline"="UniversalPipeline" }
@@ -13,6 +13,7 @@
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
         CBUFFER_START(UnityPerMaterial)
+        float _blurSize;
         float4 _BlitTexture_TexelSize;
         CBUFFER_END
 
@@ -43,6 +44,18 @@
             
             float4 frag (Interpolators i) : SV_Target {
                 half4 sum = 0;
+
+                #define GRABPIXEL(weight, kernelx) SAMPLE_TEXTURE2D(_BlitTexture, sampler_BlitTexture, float2(i.uv.x + _BlitTexture_TexelSize.x * kernelx * _blurSize, i.uv.y)) * weight;
+
+                sum += GRABPIXEL(0.05, -4.0);
+                sum += GRABPIXEL(0.09, -3.0);
+                sum += GRABPIXEL(0.12, -2.0);
+                sum += GRABPIXEL(0.15, -1.0);
+                sum += GRABPIXEL(0.18,  0.0);
+                sum += GRABPIXEL(0.15,  1.0);
+                sum += GRABPIXEL(0.12,  2.0);
+                sum += GRABPIXEL(0.09,  3.0);
+                sum += GRABPIXEL(0.05,  4.0);
                 
 				return sum;
             }
@@ -56,6 +69,18 @@
             
             float4 frag (Interpolators i) : SV_Target {
                 half4 sum = 0;
+
+                #define GRABPIXEL(weight, kernely) SAMPLE_TEXTURE2D(_BlitTexture, sampler_BlitTexture, float2(i.uv.x, i.uv.y + _BlitTexture_TexelSize.y * kernely * _blurSize)) * weight;
+
+                sum += GRABPIXEL(0.05, -4.0);
+                sum += GRABPIXEL(0.09, -3.0);
+                sum += GRABPIXEL(0.12, -2.0);
+                sum += GRABPIXEL(0.15, -1.0);
+                sum += GRABPIXEL(0.18,  0.0);
+                sum += GRABPIXEL(0.15,  1.0);
+                sum += GRABPIXEL(0.12,  2.0);
+                sum += GRABPIXEL(0.09,  3.0);
+                sum += GRABPIXEL(0.05,  4.0);
                 
 				return sum;
             }

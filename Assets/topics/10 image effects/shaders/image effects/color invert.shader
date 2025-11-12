@@ -11,6 +11,9 @@
             #pragma vertex vert
             #pragma fragment frag
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            TEXTURE2D(_BlitTexture);
+            SAMPLER(sampler_BlitTexture);
             
             struct MeshData {
                 uint vertexID : SV_VertexID;
@@ -30,6 +33,8 @@
             
             float4 frag (Interpolators i) : SV_Target {
                 float3 color = 0;
+
+                color = 1 - SAMPLE_TEXTURE2D(_BlitTexture, sampler_BlitTexture, i.uv);
                 
                 return float4(color, 1.0);
             }

@@ -1,6 +1,7 @@
 ﻿Shader "shader lab/week 10/lens distortion" {
     Properties {
-
+        _distortion ("distortion", Range(-1, 10)) = 4
+        _scale ("scale", Range(0.01, 5)) = 1
     }
     SubShader {
         Tags { "RenderPipeline"="UniversalPipeline" }
@@ -16,7 +17,8 @@
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
             CBUFFER_START(UnityPerMaterial)
-
+            float _distortion;
+            float _scale;
             CBUFFER_END
 
             TEXTURE2D(_BlitTexture);
@@ -42,6 +44,15 @@
                 float2 uv = i.uv;
                 float3 color = 0;
 
+                uv -= 0.5;
+                uv *= _scale;
+
+                float radius = pow(length(uv), 2);
+                float distort = 1 + radius * _distortion;
+                uv = uv * distort + 0.5;
+
+                color = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearRepeat, uv);
+                
                 return float4(color, 1.0);
             }
             ENDHLSL

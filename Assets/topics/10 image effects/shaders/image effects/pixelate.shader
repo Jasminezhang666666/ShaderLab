@@ -1,6 +1,6 @@
 ﻿Shader "shader lab/week 10/pixelate" {
     Properties {
-       
+       _resolution("resolution", Int) = 128
     }
     SubShader {
         Tags { "RenderPipeline"="UniversalPipeline" }
@@ -16,7 +16,7 @@
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
             CBUFFER_START(UnityPerMaterial)
-            
+            int _resolution;            
             CBUFFER_END
 
             TEXTURE2D(_BlitTexture);
@@ -41,6 +41,15 @@
             float4 frag (Interpolators i) : SV_Target {
                 float2 uv = i.uv;
                 float3 color = 0;
+
+                float aspect = _ScreenParams.x / _ScreenParams.y;
+                uv.x *= aspect;
+                
+                uv = floor(uv * _resolution) / _resolution;
+
+                uv.x /= aspect;
+                
+                color = SAMPLE_TEXTURE2D(_BlitTexture, sampler_BlitTexture, uv);
                 
                 return float4(color, 1.0);
             }
