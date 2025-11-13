@@ -184,10 +184,13 @@
                         float d  = length(relShape);
                         float dn = d / baseRadius;
                         float mask;
+                        float distNormLocal;
 
-                        if (isLineDrop > 0.5)
+                        // -------- shape branches --------
+
+                        // 1) Moving line drop (streak): head + rounded tail
+                        if (isMoving && isLineDrop > 0.5)
                         {
-                            // line drop: head + rounded tail
                             float lineRadius = baseRadius * 1.35;
 
                             float headRadius = lineRadius * 0.55;
@@ -221,26 +224,94 @@
                             if (shapeMask <= 0.0)
                                 continue;
 
-                            mask = shapeMask;
-                            dn   = 1.0 - shapeMask;
+                            mask          = shapeMask;
+                            distNormLocal = 1.0 - shapeMask;
                         }
-                        else
+                        // 2) Moving oval drops: simple stretched ellipse
+                        else if (isMoving)
                         {
-                            // ellipses / round drops
-                            float effRadius = baseRadius;
-                            if (isMoving)              // falling ellipses thinner
-                                effRadius = baseRadius * 0.65;
+                            float effRadius = baseRadius * 0.8;
+                            float2 relOval  = float2(rel.x, rel.y / stretchY);
+                            float dOval     = length(relOval);
 
-                            if (d > effRadius)
+                            if (dOval > effRadius)
                                 continue;
 
-                            dn   = d / effRadius;
-                            mask = saturate(1.0 - pow(dn, _EdgeSoftness));
+                            float dnOval = dOval / effRadius;
+                            mask         = saturate(1.0 - pow(dnOval, _EdgeSoftness));
+                            if (mask <= 0.0)
+                                continue;
+
+                            distNormLocal = dnOval;
+                        }
+                        // 3) STATIC drops: some singles, some combined blobs (1–4 circles)
+                        else
+                        {
+                            float r0 = baseRadius;
+
+                            // Decide how many lobes: ~40% single, others are combos
+                            float comboRand = rndC.x;
+                            int lobeCount = 1;
+                            if (comboRand >= 0.4)
+                            {
+                                if      (comboRand < 0.7) lobeCount = 2;
+                                else if (comboRand < 0.9) lobeCount = 3;
+                                else                     lobeCount = 4;
+                            }
+
+                            // Main lobe at center
+                            float2 o0 = float2(0.0, 0.0);
+                            // One lobe downward
+                            float2 o1 = float2(
+                                lerp(-0.15, 0.15, rndB.x) * r0,
+                                lerp( 0.4,  0.9,  rndB.y) * r0
+                            );
+                            // One lobe upward
+                            float2 o2 = float2(
+                                lerp(-0.15, 0.15, rndA.x) * r0,
+                               -lerp( 0.4,  0.8,  rndA.y) * r0
+                            );
+                            // Extra lobe further down for 4-lobe shapes
+                            float2 rndExtra = hash22(id + float2(9.0, 9.0));
+                            float2 o3 = float2(
+                                lerp(-0.12, 0.12, rndExtra.x) * r0,
+                                lerp( 1.0,  1.8,  rndExtra.y) * r0
+                            );
+
+                            // Min distance to all active lobes
+                            float dMin = 9999.0;
+
+                            float d0 = length(rel - o0);
+                            dMin = min(dMin, d0);
+
+                            if (lobeCount > 1)
+                            {
+                                float d1 = length(rel - o1);
+                                dMin = min(dMin, d1);
+                            }
+                            if (lobeCount > 2)
+                            {
+                                float d2 = length(rel - o2);
+                                dMin = min(dMin, d2);
+                            }
+                            if (lobeCount > 3)
+                            {
+                                float d3 = length(rel - o3);
+                                dMin = min(dMin, d3);
+                            }
+
+                            if (dMin > r0)
+                                continue;
+
+                            distNormLocal = dMin / r0;
+                            mask          = saturate(1.0 - pow(distNormLocal, _EdgeSoftness));
                             if (mask <= 0.0)
                                 continue;
                         }
 
-                        float2 n2d = (d > 1e-4) ? (relShape / max(d, 1e-4)) : float2(0.0, 1.0);
+                        float2 n2d = (length(relShape) > 1e-4)
+                            ? (relShape / max(length(relShape), 1e-4))
+                            : float2(0.0, 1.0);
 
                         if (isMoving)
                         {
@@ -254,7 +325,7 @@
                                     bestMask      = mask;
                                     bestCenterY   = center.y;
                                     bestNormal    = n2d;
-                                    bestDistNorm  = dn;
+                                    bestDistNorm  = distNormLocal;
                                 }
                             }
                             else
@@ -264,7 +335,7 @@
                                     bestMask      = mask;
                                     bestCenterY   = center.y;
                                     bestNormal    = n2d;
-                                    bestDistNorm  = dn;
+                                    bestDistNorm  = distNormLocal;
                                 }
                             }
                         }
@@ -277,7 +348,7 @@
                                     bestMask      = mask;
                                     bestCenterY   = center.y;
                                     bestNormal    = n2d;
-                                    bestDistNorm  = dn;
+                                    bestDistNorm  = distNormLocal;
                                 }
                             }
                         }
@@ -321,7 +392,6 @@
                 float sphere  = (1.0 - r * r);            // stronger towards center
                 float2 n2     = normalize(normal2D);      // radial direction
 
-                // flip along radial dir to fake "upside-down" image
                 float2 sphereOffset =
                     -n2 * sphere * _SphereStrength * _RefractionPixels * texel.x;
 

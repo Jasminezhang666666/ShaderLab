@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: rain on glass
-  m_Shader: {fileID: 4800000, guid: 56826eda462c6471fa08858e737319dd, type: 3}
+  m_Shader: {fileID: 4800000, guid: 59cbcfd376800964dab932d2655027d6, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -22,10 +22,67 @@ Material:
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
-    m_TexEnvs: []
+    m_TexEnvs:
+    - _DropNoise:
+        m_Texture: {fileID: 2800000, guid: bd803014d7d97aa4bb63ae5d0c4efc0b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DropShape:
+        m_Texture: {fileID: 2800000, guid: bd803014d7d97aa4bb63ae5d0c4efc0b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _CellCount: 18
+    - _ColumnCount: 40
+    - _DistortionStrength: 0.03
+    - _DripDelay: 0.35
+    - _DropCycleSpeed: 0.25
+    - _DropDensity: 0.6
+    - _DropGrid: 32
+    - _DropMaxRadius: 0.015
+    - _DropMinRadius: 0.004
+    - _DropSharpness: 4
+    - _DropSize: 0.04
+    - _DropThreshold: 0.5
+    - _DropTiling: 3.09
+    - _EdgeSoftness: 1.97
+    - _FallDistance: 0.25
+    - _FallSpeed: 0.45
+    - _FresnelIntensity: 0.475
+    - _FresnelPower: 2.22
+    - _HorizontalWiggle: 0.015
+    - _LensStrength: 0
+    - _MaxRadius: 0.024
+    - _MaxRain: 0.822
+    - _MergePinch: 0.35
+    - _MinRadius: 0.003
+    - _RainAmount: 0.16
+    - _RainIntensity: 0.039
+    - _RainSpeed: 0.313
+    - _RefractionPixels: 4.5
+    - _SmallRadiusScale: 0.4
+    - _SmallRatio: 0.762
+    - _SphereStrength: 0
+    - _StreakColumns: 24
+    - _StreakDensity: 0.6
+    - _StreakMaxLength: 0.9
+    - _StreakMinLength: 0.25
+    - _StreakSpeed: 0.4
+    - _StreakWidth: 0.004
+    - _StretchMax: 2.55
+    - _StretchMin: 1.48
+    - _TailLengthScale: 2
+    - _TrailLength: 0.35
+    - _ZigZagAmp: 0.02
+    - _ZigZagFreq: 9
+    - _cellCount: 30
     - _distortion: -0.88
+    - _distortionStrength: 0
+    - _maxRadius: 0.04
+    - _maxRain: 0.8
+    - _minRadius: 0.01
+    - _rainSpeed: 0.15
     - _scale: 1.29
     m_Colors: []
   m_BuildTextureStacks: []
