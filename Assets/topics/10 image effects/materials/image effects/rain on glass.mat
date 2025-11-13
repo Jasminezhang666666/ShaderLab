@@ -48,27 +48,27 @@ Material:
     - _DropTiling: 3.09
     - _EdgeSoftness: 1.72
     - _FallDistance: 0.25
-    - _FallSpeed: 0.47
+    - _FallSpeed: 0.66
     - _FogClearRadius: 3.36
     - _FogGrowSpeed: 0.15
-    - _FogStrength: 0.82
+    - _FogStrength: 0.96
     - _FogTrailBoost: 0.43
     - _FresnelIntensity: 0.66
     - _FresnelPower: 4.51
     - _HorizontalWiggle: 0.015
     - _LensStrength: 0
     - _LineStretch: 3
-    - _MaxRadius: 0.024
+    - _MaxRadius: 0.029
     - _MaxRain: 0.822
     - _MergePinch: 0.35
-    - _MinRadius: 0.003
+    - _MinRadius: 0.0012
     - _OvalStretch: 1.5
     - _RainAmount: 0.16
     - _RainIntensity: 0.039
-    - _RainSpeed: 0.313
+    - _RainSpeed: 0.553
     - _RefractionPixels: 4.5
     - _SmallRadiusScale: 0.4
-    - _SmallRatio: 0.762
+    - _SmallRatio: 0.558
     - _SphereStrength: 0
     - _StreakColumns: 24
     - _StreakDensity: 0.6
