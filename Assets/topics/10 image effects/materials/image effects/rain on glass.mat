@@ -46,17 +46,23 @@ Material:
     - _DropSize: 0.04
     - _DropThreshold: 0.5
     - _DropTiling: 3.09
-    - _EdgeSoftness: 1.97
+    - _EdgeSoftness: 1.72
     - _FallDistance: 0.25
-    - _FallSpeed: 0.45
-    - _FresnelIntensity: 0.475
-    - _FresnelPower: 2.22
+    - _FallSpeed: 0.47
+    - _FogClearRadius: 3.36
+    - _FogGrowSpeed: 0.15
+    - _FogStrength: 0
+    - _FogTrailBoost: 0.43
+    - _FresnelIntensity: 0.66
+    - _FresnelPower: 4.51
     - _HorizontalWiggle: 0.015
     - _LensStrength: 0
+    - _LineStretch: 3
     - _MaxRadius: 0.024
     - _MaxRain: 0.822
     - _MergePinch: 0.35
     - _MinRadius: 0.003
+    - _OvalStretch: 1.5
     - _RainAmount: 0.16
     - _RainIntensity: 0.039
     - _RainSpeed: 0.313
@@ -70,8 +76,8 @@ Material:
     - _StreakMinLength: 0.25
     - _StreakSpeed: 0.4
     - _StreakWidth: 0.004
-    - _StretchMax: 2.55
-    - _StretchMin: 1.48
+    - _StretchMax: 3.66
+    - _StretchMin: 1.25
     - _TailLengthScale: 2
     - _TrailLength: 0.35
     - _ZigZagAmp: 0.02
@@ -84,6 +90,7 @@ Material:
     - _minRadius: 0.01
     - _rainSpeed: 0.15
     - _scale: 1.29
-    m_Colors: []
+    m_Colors:
+    - _FogTint: {r: 0.8979495, g: 0.9068309, b: 0.9169811, a: 0.34117648}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
