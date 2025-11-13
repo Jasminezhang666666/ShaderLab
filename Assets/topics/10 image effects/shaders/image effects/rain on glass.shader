@@ -1,4 +1,4 @@
-﻿Shader "shader lab/week 10/rain combined drops"
+﻿Shader "shader lab/week 10/rain on glass"
 {
     Properties
     {
@@ -191,9 +191,7 @@
                         float stretchY   = 1.0;
                         float isLineDrop = 0.0;
 
-                        // -----------------------------
                         // Position + stretching
-                        // -----------------------------
                         if (isBigMoving)
                         {
                             // Basic falling speed with some random variation
@@ -239,13 +237,11 @@
                         float mask;
                         float distNormLocal;
 
-                        // ==============================
                         //  SHAPE BRANCHES
-                        // ==============================
 
-                        // 1) Moving line drop:
-                        //    - rounded head at the bottom
-                        //    - rounded-rectangle-like tail behind
+                        // Moving line drop:
+                        // rounded head at the bottom
+                        // rounded-rectangle-like tail behind
                         if (isMoving && isLineDrop > 0.5)
                         {
                             float lineRadius = baseRadius * 1.35;
@@ -286,8 +282,7 @@
                             mask          = shapeMask;
                             distNormLocal = 1.0 - shapeMask; // 0 = center, 1 = edge
                         }
-                        // 2) Moving oval drop:
-                        //    simple stretched ellipse (no combined blobs)
+                        // Moving oval drop: simple stretched ellipse
                         else if (isMoving)
                         {
                             float effRadius = baseRadius * 0.8;
@@ -304,8 +299,7 @@
 
                             distNormLocal = dnOval;
                         }
-                        // 3) Static "blob" drop:
-                        //    union of 1–4 overlapped circles → chicken-nugget-y shapes
+                        // Static "blob" drop: union of 1–4 overlapped circles
                         else
                         {
                             float r0 = baseRadius;
@@ -381,8 +375,7 @@
                         // Choose which droplet "wins" at this pixel
                         if (isMoving)
                         {
-                            // Moving drops: prefer them when overlap is strong,
-                            // and among those, prefer the lower one (smaller center.y)
+                            // Moving drops: prefer them when overlap is strong, and among those, prefer the lower one (smaller center.y)
                             float overlapThreshold = 0.25;
 
                             if (!bestIsMoving)
@@ -441,9 +434,7 @@
                 // Global rain factor: more time → more drops
                 float globalRain = saturate(_RainSpeed * _Time.y);
 
-                // -----------------------------
                 // Fog base factor (time driven)
-                // -----------------------------
                 float fogGrow = saturate(_FogGrowSpeed * _Time.y);
                 float fogBase = fogGrow * _FogStrength;
 
@@ -472,9 +463,7 @@
                     return float4(colorNoDrops, 1.0);
                 }
 
-                // --------------------------------
                 // Refraction sampling under drops
-                // --------------------------------
                 float2 texel    = _BlitTexture_TexelSize.xy;
                 float  sideSign = (uv.x < 0.5) ? -1.0 : 1.0;
 
@@ -488,10 +477,8 @@
                 // Clear water → lerp from baseColor to refracted color, using drop mask
                 float3 color = lerp(baseColor, lensColor, mask);
 
-                // ----------------------------------------------
                 // Fresnel: dark up/left, bright down/right edges
-                // ----------------------------------------------
-                float edge    = saturate(distNorm);                  // 0 center → 1 rim
+                float edge    = saturate(distNorm); // 0 center → 1 rim
                 float rimBase = pow(edge, _FresnelPower);
 
                 float2 N2 = normalize(normal2D);
@@ -512,12 +499,10 @@
 
                 color = saturate(color);
 
-                // ==============================
                 //  FOG / CONDENSATION OVER GLASS
-                //   - grows over time
-                //   - cleared inside drops
-                //   - slightly less fog above drops (using normal2D.y)
-                // ==============================
+                //  grows over time
+                //  cleared inside drops
+                //  slightly less fog above drops (using normal2D.y)
                 if (fogBase > 0.0001)
                 {
                     // Simple clearing radius and trail strength baked in
@@ -526,10 +511,10 @@
 
                     // Clear around the drop center based on a scaled distance
                     float scaledR = saturate(distNorm / max(fogClearRadius, 0.0001));
-                    float clearAroundDrop = saturate(1.0 - scaledR * scaledR);   // 1 in center → 0 outward
+                    float clearAroundDrop = saturate(1.0 - scaledR * scaledR); // 1 in center → 0 outward
 
                     // Extra fog clearing above the drop, so it leaves a little "trail"
-                    float upFactor  = saturate(-normal2D.y);                     // 1 above center, 0 below
+                    float upFactor  = saturate(-normal2D.y); // 1 above center, 0 below
                     float trailMask = clearAroundDrop * upFactor * fogTrailBoost;
 
                     float clearFactor = saturate(clearAroundDrop + trailMask);

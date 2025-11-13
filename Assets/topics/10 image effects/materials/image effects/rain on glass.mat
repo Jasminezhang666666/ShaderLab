@@ -51,7 +51,7 @@ Material:
     - _FallSpeed: 0.47
     - _FogClearRadius: 3.36
     - _FogGrowSpeed: 0.15
-    - _FogStrength: 0
+    - _FogStrength: 0.82
     - _FogTrailBoost: 0.43
     - _FresnelIntensity: 0.66
     - _FresnelPower: 4.51
