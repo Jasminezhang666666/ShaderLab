@@ -2,7 +2,9 @@
 {
     Properties
     {
-        _LensStrength     ("lens strength", Range(0, 2))        = 1.2
+        // how many screen pixels to shift sampling horizontally
+        _RefractionPixels ("refraction pixels", Range(0, 40)) = 10
+        _SphereStrength   ("sphere distortion", Range(0, 3))  = 1.0
 
         _CellCount        ("droplet grid count", Int)           = 16
 
@@ -43,7 +45,8 @@
             #define MAX_CELLS 24
 
             CBUFFER_START(UnityPerMaterial)
-            float _LensStrength;
+            float _RefractionPixels;
+            float _SphereStrength;
 
             int   _CellCount;
             float _MinRadius;
@@ -61,12 +64,15 @@
 
             float _FresnelPower;
             float _FresnelIntensity;
+
+            float4 _BlitTexture_TexelSize; // (1/width,1/height,width,height)
             CBUFFER_END
 
             TEXTURE2D(_BlitTexture);
             SAMPLER(sampler_BlitTexture);
 
             struct MeshData { uint vertexID : SV_VertexID; };
+
             struct Interpolators
             {
                 float4 posCS : SV_POSITION;
@@ -87,6 +93,7 @@
                 return frac(float2(262144.0, 32768.0) * n);
             }
 
+            // outLensUV is now just a dummy (we don't use it anymore)
             void ComputeDropField(
                 float2 uv,
                 float  globalRain,
@@ -113,7 +120,6 @@
                 float  bestCenterY   = 10.0;
                 float2 bestNormal    = float2(0.0, 1.0);
                 float  bestDistNorm  = 0.0;
-                float2 bestLensOff   = float2(0.0, 0.0);
                 bool   bestIsMoving  = false;
 
                 for (int gy = 0; gy < MAX_CELLS; gy++)
@@ -147,21 +153,14 @@
 
                         if (isBigMoving)
                         {
-                            // ---- 速度：线条快，椭圆慢 ----
                             float baseSpeed = _FallSpeed * (0.6 + rndC.x * 0.8);
 
                             isLineDrop = (rndC.y < 0.3) ? 1.0 : 0.0;
 
-                            float speed = baseSpeed;
-                            if (isLineDrop < 0.5)
-                            {
-                                // 椭圆大滴：比线条慢一些
-                                speed = baseSpeed * 0.5;
-                            }
+                            // line drops fall faster, ellipses slower
+                            float speed = (isLineDrop > 0.5) ? baseSpeed : (baseSpeed * 0.5);
+                            float t     = frac(_Time.y * speed + rndC.y);
 
-                            float t = frac(_Time.y * speed + rndC.y);
-
-                            // 拉长程度
                             float bigFactor     = saturate((baseRadius - _MinRadius) / (_MaxRadius - _MinRadius));
                             float stretchFactor = lerp(_StretchMin, _StretchMax, bigFactor);
                             stretchFactor       = lerp(1.0, stretchFactor, spawnPhase);
@@ -188,7 +187,7 @@
 
                         if (isLineDrop > 0.5)
                         {
-                            // -------- 线状大雨滴：尾巴宽度 = 圆头直径 --------
+                            // line drop: head + rounded tail
                             float lineRadius = baseRadius * 1.35;
 
                             float headRadius = lineRadius * 0.55;
@@ -198,8 +197,7 @@
                             float headMask   = saturate(1.0 - pow(headD, _EdgeSoftness));
 
                             float tailLen = max(lineRadius * (stretchY - 1.0), lineRadius * 0.6);
-
-                            float cutY = headOffset + headRadius * 0.2;
+                            float cutY    = headOffset + headRadius * 0.2;
 
                             float tailMask = 0.0;
                             if (rel.y > cutY)
@@ -207,13 +205,14 @@
                                 float tailMidY = cutY + tailLen * 0.5;
 
                                 float2 pTail = float2(
-                                    rel.x / headRadius,             // 半宽 = headRadius → 头直径 = 线宽
+                                    rel.x / headRadius,             // half-width = headRadius
                                     (rel.y - tailMidY) / tailLen
                                 );
 
+                                // superellipse (rounded rectangle)
                                 float px = abs(pTail.x);
                                 float py = abs(pTail.y);
-                                float p  = 3.0; // superellipse 指数：2=椭圆, >2 更方
+                                float p  = 3.0;
                                 float se = pow(px, p) + pow(py, p);
                                 tailMask = saturate(1.0 - se);
                             }
@@ -227,11 +226,9 @@
                         }
                         else
                         {
-                            // -------- 椭圆 / 普通大滴 --------
-                            // 小水滴：isBigMoving=false → 走这里但 isMoving=false，不会下落
-                            // 椭圆 fall：effRadius 稍微缩小，细一点，速度在上面已经减半
+                            // ellipses / round drops
                             float effRadius = baseRadius;
-                            if (isMoving)              // 只对会下落的椭圆应用缩放
+                            if (isMoving)              // falling ellipses thinner
                                 effRadius = baseRadius * 0.65;
 
                             if (d > effRadius)
@@ -244,11 +241,6 @@
                         }
 
                         float2 n2d = (d > 1e-4) ? (relShape / max(d, 1e-4)) : float2(0.0, 1.0);
-
-                        float lensPower = (1.0 - dn * dn);
-                        float2 dir      = (length(rel) > 1e-4) ? normalize(rel) : float2(0.0, 1.0);
-                        float offsetMag = baseRadius * _LensStrength * lensPower;
-                        float2 lensOffset = -dir * offsetMag;
 
                         if (isMoving)
                         {
@@ -263,7 +255,6 @@
                                     bestCenterY   = center.y;
                                     bestNormal    = n2d;
                                     bestDistNorm  = dn;
-                                    bestLensOff   = lensOffset;
                                 }
                             }
                             else
@@ -274,7 +265,6 @@
                                     bestCenterY   = center.y;
                                     bestNormal    = n2d;
                                     bestDistNorm  = dn;
-                                    bestLensOff   = lensOffset;
                                 }
                             }
                         }
@@ -288,7 +278,6 @@
                                     bestCenterY   = center.y;
                                     bestNormal    = n2d;
                                     bestDistNorm  = dn;
-                                    bestLensOff   = lensOffset;
                                 }
                             }
                         }
@@ -301,7 +290,7 @@
                 outMask      = bestMask;
                 outNormal2D  = bestNormal;
                 outDistNorm  = bestDistNorm;
-                outLensUV    = uv + bestLensOff;
+                outLensUV    = uv;    // dummy, not used anymore
             }
 
             float4 frag(Interpolators i) : SV_Target
@@ -312,19 +301,39 @@
                 float globalRain = saturate(_RainSpeed * _Time.y);
 
                 float  mask;
-                float2 lensUV;
+                float2 dummyUV;
                 float  distNorm;
                 float2 normal2D;
-                ComputeDropField(uv, globalRain, mask, lensUV, distNorm, normal2D);
+                ComputeDropField(uv, globalRain, mask, dummyUV, distNorm, normal2D);
 
                 if (mask <= 0.0001)
                     return float4(baseColor, 1.0);
 
-                lensUV = clamp(lensUV, float2(0.001, 0.001), float2(0.999, 0.999));
-                float3 lensColor = SAMPLE_TEXTURE2D(_BlitTexture, sampler_BlitTexture, lensUV).rgb;
+                // --- refraction sampling ---
+                float2 texel = _BlitTexture_TexelSize.xy;
 
+                // left half of screen samples to the left, right half samples to the right
+                float sideSign = (uv.x < 0.5) ? -1.0 : 1.0;
+                float2 baseSampleUV = uv + float2(sideSign * _RefractionPixels * texel.x, 0.0);
+
+                // spherical distortion inside the drop
+                float r       = saturate(distNorm);        // 0 center, 1 rim
+                float sphere  = (1.0 - r * r);            // stronger towards center
+                float2 n2     = normalize(normal2D);      // radial direction
+
+                // flip along radial dir to fake "upside-down" image
+                float2 sphereOffset =
+                    -n2 * sphere * _SphereStrength * _RefractionPixels * texel.x;
+
+                float2 finalUV = baseSampleUV + sphereOffset;
+                finalUV = clamp(finalUV, float2(0.001, 0.001), float2(0.999, 0.999));
+
+                float3 lensColor = SAMPLE_TEXTURE2D(_BlitTexture, sampler_BlitTexture, finalUV).rgb;
+
+                // clear water: refracted background where drops are
                 float3 color = lerp(baseColor, lensColor, mask);
 
+                // Fresnel: dark up/left, bright down/right
                 float edge    = saturate(distNorm);
                 float rimBase = pow(edge, _FresnelPower);
 
