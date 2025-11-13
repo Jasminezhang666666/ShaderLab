@@ -6,19 +6,17 @@
 
         _CellCount        ("droplet grid count", Int)           = 16
 
-        // Smaller drops overall
         _MinRadius        ("min radius", Range(0.001,0.1))      = 0.0035
         _MaxRadius        ("max radius", Range(0.005,0.2))      = 0.011
 
         _SmallRatio       ("small drop ratio", Range(0,1))      = 0.9
 
-        // Fewer total active drops
         _MaxRain          ("max rain density", Range(0,1))      = 0.2
         _RainSpeed        ("rain grow speed", Range(0,1))       = 0.08
 
         _FallSpeed        ("big fall speed", Range(0,2))        = 0.6
         _StretchMin       ("big min stretch", Range(1,3))       = 1.2
-        _StretchMax       ("big max stretch", Range(1,5))       = 2.6
+        _StretchMax       ("big max stretch", Range(1,5))       = 3.0
 
         _EdgeSoftness     ("edge softness", Range(0.5, 4))      = 2.0
 
@@ -42,7 +40,7 @@
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
-            #define MAX_CELLS 24   // safety cap for loops
+            #define MAX_CELLS 24
 
             CBUFFER_START(UnityPerMaterial)
             float _LensStrength;
@@ -68,11 +66,7 @@
             TEXTURE2D(_BlitTexture);
             SAMPLER(sampler_BlitTexture);
 
-            struct MeshData
-            {
-                uint vertexID : SV_VertexID;
-            };
-
+            struct MeshData { uint vertexID : SV_VertexID; };
             struct Interpolators
             {
                 float4 posCS : SV_POSITION;
@@ -93,8 +87,6 @@
                 return frac(float2(262144.0, 32768.0) * n);
             }
 
-            // Many small static drops, a few bigger ones sliding straight DOWN.
-            // For each pixel we keep ONLY the lowest drop (smallest center.y).
             void ComputeDropField(
                 float2 uv,
                 float  globalRain,
@@ -112,19 +104,17 @@
                 if (globalRain <= 0.0)
                     return;
 
-                int N = _CellCount;
-                N = clamp(N, 1, MAX_CELLS);
+                int   N  = clamp(_CellCount, 1, MAX_CELLS);
                 float Nf = (float)N;
 
-                // spawn phase: fills up, then stops adding new drops
                 float spawnPhase = saturate(globalRain / 0.6);
 
-                // winner at this pixel = drop with SMALLEST center.y (closest to bottom)
-                float bestMask      = 0.0;
-                float bestCenterY   = 10.0;   // start high, we look for smaller
-                float2 bestNormal   = float2(0.0, 1.0);
-                float  bestDistNorm = 0.0;
-                float2 bestLensOff  = float2(0.0, 0.0);
+                float  bestMask      = 0.0;
+                float  bestCenterY   = 10.0;
+                float2 bestNormal    = float2(0.0, 1.0);
+                float  bestDistNorm  = 0.0;
+                float2 bestLensOff   = float2(0.0, 0.0);
+                bool   bestIsMoving  = false;
 
                 for (int gy = 0; gy < MAX_CELLS; gy++)
                 {
@@ -140,79 +130,167 @@
                         float2 rndB = hash22(id + float2(17.0, 53.0));
                         float2 rndC = hash22(id + float2(101.0, 7.0));
 
-                        // spawn over time, but capped by spawnPhase
-                        if (spawnPhase < rndA.x)
-                            continue;
-
-                        // density cap
-                        if (rndA.y > _MaxRain)
-                            continue;
+                        if (spawnPhase < rndA.x)  continue;
+                        if (rndA.y > _MaxRain)    continue;
 
                         float baseRadius = lerp(_MinRadius, _MaxRadius, rndA.y);
 
-                        bool isSmall = (rndB.x < _SmallRatio);
-
+                        bool   isSmall    = (rndB.x < _SmallRatio);
                         float2 centerBase = (id + rndB) / Nf;
                         float2 center     = centerBase;
 
                         bool isBigMoving = (!isSmall && baseRadius > lerp(_MinRadius, _MaxRadius, 0.6));
+                        bool isMoving    = isBigMoving;
 
-                        float stretchY = 1.0;
+                        float stretchY   = 1.0;
+                        float isLineDrop = 0.0;
 
                         if (isBigMoving)
                         {
-                            float speed = _FallSpeed * (0.6 + rndC.x * 0.8);
-                            float t = frac(_Time.y * speed + rndC.y); // 0..1
+                            // ---- 速度：线条快，椭圆慢 ----
+                            float baseSpeed = _FallSpeed * (0.6 + rndC.x * 0.8);
 
+                            isLineDrop = (rndC.y < 0.3) ? 1.0 : 0.0;
+
+                            float speed = baseSpeed;
+                            if (isLineDrop < 0.5)
+                            {
+                                // 椭圆大滴：比线条慢一些
+                                speed = baseSpeed * 0.5;
+                            }
+
+                            float t = frac(_Time.y * speed + rndC.y);
+
+                            // 拉长程度
                             float bigFactor     = saturate((baseRadius - _MinRadius) / (_MaxRadius - _MinRadius));
                             float stretchFactor = lerp(_StretchMin, _StretchMax, bigFactor);
                             stretchFactor       = lerp(1.0, stretchFactor, spawnPhase);
-                            stretchY            = stretchFactor;
 
-                            // move from ABOVE top edge (y > 1) to BELOW bottom edge (y < 0)
-                            float margin = baseRadius * stretchY;
-                            margin = min(margin, 0.45);
+                            float tailMul = lerp(1.0, 2.7, isLineDrop);
+                            stretchY      = stretchFactor * tailMul;
 
-                            float startY = 1.0 + margin;  // off top
-                            float endY   = -margin;       // off bottom
-
-                            // as t increases, y DECREASES (top → bottom)
-                            center.y = lerp(startY, endY, t);
+                            float margin = min(baseRadius * stretchY, 0.45);
+                            float startY = 1.0 + margin;
+                            float endY   = -margin;
+                            center.y     = lerp(startY, endY, t);
                         }
                         else
                         {
-                            // static dots clamped inside screen
                             center.y = clamp(center.y, baseRadius, 1.0f - baseRadius);
                         }
 
                         float2 rel      = uv - center;
                         float2 relShape = float2(rel.x, rel.y / stretchY);
 
-                        float d = length(relShape);
-                        if (d > baseRadius)
-                            continue;
+                        float d  = length(relShape);
+                        float dn = d / baseRadius;
+                        float mask;
 
-                        float dn   = d / baseRadius; // 0 center, 1 edge
-                        float mask = saturate(1.0 - pow(dn, _EdgeSoftness));
-                        if (mask <= 0.0)
-                            continue;
+                        if (isLineDrop > 0.5)
+                        {
+                            // -------- 线状大雨滴：尾巴宽度 = 圆头直径 --------
+                            float lineRadius = baseRadius * 1.35;
 
-                        float2 n2d = (d > 1e-4) ? (relShape / d) : float2(0.0, 1.0);
+                            float headRadius = lineRadius * 0.55;
+                            float headOffset = -headRadius * 0.3;
+                            float2 pHead     = float2(rel.x, rel.y - headOffset);
+                            float headD      = length(pHead) / headRadius;
+                            float headMask   = saturate(1.0 - pow(headD, _EdgeSoftness));
 
-                        // Lens: clear inside, upside-down distortion
+                            float tailLen = max(lineRadius * (stretchY - 1.0), lineRadius * 0.6);
+
+                            float cutY = headOffset + headRadius * 0.2;
+
+                            float tailMask = 0.0;
+                            if (rel.y > cutY)
+                            {
+                                float tailMidY = cutY + tailLen * 0.5;
+
+                                float2 pTail = float2(
+                                    rel.x / headRadius,             // 半宽 = headRadius → 头直径 = 线宽
+                                    (rel.y - tailMidY) / tailLen
+                                );
+
+                                float px = abs(pTail.x);
+                                float py = abs(pTail.y);
+                                float p  = 3.0; // superellipse 指数：2=椭圆, >2 更方
+                                float se = pow(px, p) + pow(py, p);
+                                tailMask = saturate(1.0 - se);
+                            }
+
+                            float shapeMask = max(headMask, tailMask);
+                            if (shapeMask <= 0.0)
+                                continue;
+
+                            mask = shapeMask;
+                            dn   = 1.0 - shapeMask;
+                        }
+                        else
+                        {
+                            // -------- 椭圆 / 普通大滴 --------
+                            // 小水滴：isBigMoving=false → 走这里但 isMoving=false，不会下落
+                            // 椭圆 fall：effRadius 稍微缩小，细一点，速度在上面已经减半
+                            float effRadius = baseRadius;
+                            if (isMoving)              // 只对会下落的椭圆应用缩放
+                                effRadius = baseRadius * 0.65;
+
+                            if (d > effRadius)
+                                continue;
+
+                            dn   = d / effRadius;
+                            mask = saturate(1.0 - pow(dn, _EdgeSoftness));
+                            if (mask <= 0.0)
+                                continue;
+                        }
+
+                        float2 n2d = (d > 1e-4) ? (relShape / max(d, 1e-4)) : float2(0.0, 1.0);
+
                         float lensPower = (1.0 - dn * dn);
-                        float2 dir = (length(rel) > 1e-4) ? normalize(rel) : float2(0.0, 1.0);
+                        float2 dir      = (length(rel) > 1e-4) ? normalize(rel) : float2(0.0, 1.0);
                         float offsetMag = baseRadius * _LensStrength * lensPower;
                         float2 lensOffset = -dir * offsetMag;
 
-                        // --- collision rule: keep the LOWER drop (smaller y) at this pixel ---
-                        if (mask > 0.0 && center.y < bestCenterY)
+                        if (isMoving)
                         {
-                            bestCenterY   = center.y;
-                            bestMask      = mask;
-                            bestNormal    = n2d;
-                            bestDistNorm  = dn;
-                            bestLensOff   = lensOffset;
+                            float overlapThreshold = 0.25;
+
+                            if (!bestIsMoving)
+                            {
+                                if (mask > overlapThreshold || bestMask == 0.0)
+                                {
+                                    bestIsMoving = true;
+                                    bestMask      = mask;
+                                    bestCenterY   = center.y;
+                                    bestNormal    = n2d;
+                                    bestDistNorm  = dn;
+                                    bestLensOff   = lensOffset;
+                                }
+                            }
+                            else
+                            {
+                                if (center.y < bestCenterY || mask > bestMask)
+                                {
+                                    bestMask      = mask;
+                                    bestCenterY   = center.y;
+                                    bestNormal    = n2d;
+                                    bestDistNorm  = dn;
+                                    bestLensOff   = lensOffset;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (!bestIsMoving)
+                            {
+                                if (mask > bestMask || center.y < bestCenterY)
+                                {
+                                    bestMask      = mask;
+                                    bestCenterY   = center.y;
+                                    bestNormal    = n2d;
+                                    bestDistNorm  = dn;
+                                    bestLensOff   = lensOffset;
+                                }
+                            }
                         }
                     }
                 }
@@ -228,10 +306,9 @@
 
             float4 frag(Interpolators i) : SV_Target
             {
-                float2 uv = i.uv;
+                float2 uv        = i.uv;
                 float3 baseColor = SAMPLE_TEXTURE2D(_BlitTexture, sampler_BlitTexture, uv).rgb;
 
-                // global rain grows, but spawn stops increasing after ~0.6
                 float globalRain = saturate(_RainSpeed * _Time.y);
 
                 float  mask;
@@ -246,18 +323,16 @@
                 lensUV = clamp(lensUV, float2(0.001, 0.001), float2(0.999, 0.999));
                 float3 lensColor = SAMPLE_TEXTURE2D(_BlitTexture, sampler_BlitTexture, lensUV).rgb;
 
-                // clear water: background visible but refracted where drops are
                 float3 color = lerp(baseColor, lensColor, mask);
 
-                // ---- Fresnel: dark up/left, bright bottom ----
-                float edge    = saturate(distNorm);         // 0 center, 1 rim
+                float edge    = saturate(distNorm);
                 float rimBase = pow(edge, _FresnelPower);
 
                 float2 N2 = normalize(normal2D);
 
                 float darkUp   = saturate( N2.y);
                 float darkLeft = saturate(-N2.x);
-                float darkTerm = saturate(0.6 * darkUp + 0.4 * darkLeft);
+                float darkTerm = saturate(0.05 * darkUp + 0.95 * darkLeft);
 
                 float whiteDown  = saturate(-N2.y);
                 float whiteRight = saturate( N2.x);
@@ -266,8 +341,8 @@
                 float whiteRim = rimBase * whiteTerm * _FresnelIntensity;
                 float blackRim = rimBase * darkTerm  * _FresnelIntensity;
 
-                color += whiteRim;   // bright lower side
-                color -= blackRim;   // darker upper/left
+                color += whiteRim;
+                color -= blackRim;
 
                 color = saturate(color);
 
