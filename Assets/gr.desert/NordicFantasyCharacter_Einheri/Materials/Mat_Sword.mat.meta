@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: bd5c0d8ff1ed10c45bb7ab31a7dd07ea
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 329710
+  packageName: NordicFantasyCharacter_Einheri
+  packageVersion: 1.0
+  assetPath: Assets/gr.desert/NordicFantasyCharacter_Einheri/Materials/Mat_Sword.mat
+  uploadId: 780167

@@ -3,6 +3,7 @@
         _colorA ("color a", Color) = (1, 1, 1, 1)
         _colorB ("color b", Color) = (1, 1, 1, 1)
         _cubeMap ("cube map", Cube) = "white" {}
+        _stencilRef ("stencil reference", Int) = 0
     }
 
     SubShader {
@@ -11,7 +12,13 @@
             "Queue" = "Geometry"
         }
         
+        Cull Front
         
+        Stencil {
+            Ref [_stencilRef]
+            Comp Equal
+            
+        }
         
         // nothing new below
         Pass {

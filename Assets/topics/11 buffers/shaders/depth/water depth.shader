@@ -30,6 +30,9 @@
             float _depthFog;
             float _opacity;
             CBUFFER_END
+
+            TEXTURE2D(_CameraOpaqueTexture);
+            SAMPLER(sampler_CameraOpaqueTexture);
             
             TEXTURE2D(_CameraDepthTexture);
             SAMPLER(sampler_CameraDepthTexture);
@@ -84,8 +87,27 @@
                 // calculate screenUV coordinates
                 float2 screenUV = i.screenPos.xy / i.screenPos.w;
 
+                float depth = SAMPLE_TEXTURE2D(_CameraDepthTexture, sampler_CameraDepthTexture, screenUV);
+                depth = Linear01Depth(depth, _ZBufferParams);
 
+                float difference = abs((depth / _ProjectionParams.w) - i.surfZ);
+                float intersection = smoothstep(_surfaceIntersectionSize, 0, difference);
+
+                float2 distortedScreenUV = screenUV + (float2(0.1, 0.4) * (w * i.normal.y) * _refractionIntensity);
+                float3 background = SAMPLE_TEXTURE2D(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, distortedScreenUV);
+
+                float depthDistorted = SAMPLE_TEXTURE2D(_CameraDepthTexture, sampler_CameraDepthTexture, distortedScreenUV).r;
+                depthDistorted = Linear01Depth(depthDistorted, _ZBufferParams);
+
+                float distortedDepthDifference = abs((depthDistorted / _ProjectionParams.w) - i.surfZ);
+
+                float underwaterDepth = smoothstep(_depthFog, 0, distortedDepthDifference);
                 
+                background *= underwaterDepth;
+
+                color = lerp(background + color, color, _opacity);
+                
+                color += smoothstep(0.1, 0.2, intersection) * 0.5;
                 return float4(color, 1.0);
             }
             ENDHLSL

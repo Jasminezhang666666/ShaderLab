@@ -1,11 +1,21 @@
 ﻿Shader "shader lab/week 11/window" {
     Properties {
-        
+        _stencilRef ("stencil reference", Int) = 1
     }
 
     SubShader {
         Tags {
             "RenderPipeline" = "UniversalPipeline"
+            "Queue" = "Geometry-1" // geometry = 2000
+        }
+        
+        ZWrite Off
+        ColorMask 0
+        
+        Stencil {
+            Ref [_stencilRef]
+            Comp Always
+            Pass Replace
         }
         
         // nothing new below

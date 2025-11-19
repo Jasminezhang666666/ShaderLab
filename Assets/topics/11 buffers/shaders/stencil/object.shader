@@ -5,11 +5,21 @@
         _diffuseLightSteps ("diffuse light steps", Int) = 4
         _specularLightSteps ("specular light steps", Int) = 2
         _ambientColor ("ambient color", Color) = (0.7, 0.05, 0.15)
+        
+        _stencilRef ("stencil reference", Int) = 1
     }
     SubShader {
         Tags {
             "RenderPipeline" = "UniversalPipeline"
             "Queue" = "Geometry"
+        }
+        
+        Stencil {
+            Ref [_stencilRef]
+            Comp Equal
+            // comp always -> if (true) { }
+            // if (refValue == currentStencilValue) 
+            // Pass Replace -> writing ref to the stencil buffer
         }
         
         

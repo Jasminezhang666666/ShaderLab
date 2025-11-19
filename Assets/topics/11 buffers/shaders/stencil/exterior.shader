@@ -12,6 +12,12 @@
             "RenderPipeline" = "UniversalPipeline"
             "Queue" = "Geometry"
         }
+        
+        Stencil {
+            Ref 0
+            Comp Equal
+            // if (0 == curentStencilValue) -> do things and pass
+        }
 
 
 
