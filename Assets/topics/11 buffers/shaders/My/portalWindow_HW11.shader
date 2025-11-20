@@ -10,7 +10,7 @@
         Tags
         {
             "RenderPipeline" = "UniversalPipeline"
-            "Queue" = "Geometry-1"
+            "Queue"          = "Geometry-1"
         }
 
         ZWrite Off
@@ -18,9 +18,10 @@
 
         Stencil
         {
-            Ref [_stencilRef]
-            Comp Always
-            Pass Replace
+            Ref       [_stencilRef]   // 1
+            Comp      Always
+            Pass      Replace
+            WriteMask 1              // only touch bit 0
         }
 
         Pass
@@ -30,15 +31,8 @@
             #pragma fragment frag
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
-            struct MeshData
-            {
-                float4 vertex : POSITION;
-            };
-
-            struct Interpolators
-            {
-                float4 vertex : SV_POSITION;
-            };
+            struct MeshData { float4 vertex : POSITION; };
+            struct Interpolators { float4 vertex : SV_POSITION; };
 
             Interpolators vert (MeshData v)
             {

@@ -22,8 +22,9 @@
 
         Stencil
         {
-            Ref  [_stencilRef]
-            Comp Equal
+            Ref      [_stencilRef]   // 1
+            Comp     Equal
+            ReadMask 1               // only care about bit 0
         }
 
         Pass
