@@ -26,17 +26,17 @@
             float4 frag (Interpolators i) : SV_Target {
                 //Initialize hue and clear fragcolor
                 float4 O = 0;
-                float4 h; 
-                O = 0.9;
+                float4 h; O = 0.9;
                 float2 I = i.vertex.xy;
                 
                 //Uvs and resolution for scaling
-                float2 u,r = _ScreenParams.xy;
+                float2 u, r = _ScreenParams.xy;
+                
                 //Alpha, length, angle and iterator/radius
                 for(float A,l,L,a,i=7.;--i>0.;
                         //A = anti-aliased alpha using SDF
                         //Pick layer color
-                        O = lerp(h=sin(i+a/3.+float4(1,3,5,0))*.2+.7,O, A=min(--l*r.y*.02,1.))*
+                        O=lerp(h=sin(i+a/3.+float4(1,3,5,0))*.2+.7,O, A=min(--l*r.y*.02,1.))*
                         //Soft shading
                         (l + h + .5*A*u.y/L )/L)
                     
@@ -45,7 +45,7 @@
                     //Scale and center
                     u=(I+I-r)/r.y/.1,
                     //Compute round square SDF
-                    L = l = max(length(u -= mul(R, clamp(mul(u,R),-i,i))),1.);
+                    L = l = max(length(u -= mul(R, clamp(mul(u, R),-i,i))),1.);
 
                 return O;
             }
